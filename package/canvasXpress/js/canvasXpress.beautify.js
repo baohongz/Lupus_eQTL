@@ -52073,6 +52073,8 @@ CanvasXpress.prototype.initRemote = function() {
 		}
 	};
 	this.setClientIPInfo = function() {
+// Baohong
+		return;
 		var setInfo = function(t) {
 			return function(r) {
 				t.meta.info = JSON.parse(r)
