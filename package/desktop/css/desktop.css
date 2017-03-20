@@ -64,10 +64,10 @@ div.ui-resizable-handle1 {
   -webkit-background-clip: padding-box;
   color: #000;
   display: none;
-  width: 840px;
+  width: 640px;
   height: 440px;
   top: 200px;
-  left: 100px;
+  left: 200px;
   z-index: 2;
 }
 

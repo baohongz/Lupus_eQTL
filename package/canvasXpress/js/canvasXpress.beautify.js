@@ -1,5 +1,5 @@
 /**
- * CanvasXpress 14.7 - JavaScript Canvas Library
+ * CanvasXpress 14.9 - JavaScript Canvas Library
  * 
  * Copyright (c) 2009-2017 Isaac Neuhaus
  * 
@@ -18,8 +18,6 @@
  * Commercial use may be granted to the extent that this source code does NOT become part of any other Open Source or Commercially licensed development library or toolkit without explicit permission.
  * Please contact me for additional information.
  * 
- * Network graphs were implemented based on the HeyGraph by Tom Martin http://www.heychinaski.com.
- * 
  * Thanks to Mingyi Liu for his contributions with the Ext-JS panel and network graphs and Charles Tilford for his input to the Genome Browser.
  * 
  */
@@ -35,7 +33,31 @@
  * - The 'light' font weight is not supported, neither is the 'oblique' font style. 
  * - Optimize the different hacks (for Opera9) 
  * 
- **** 
+ ****
+ *
+ * HeyGraph by Tom Martin
+ * 
+ * Copyright (c) 2010 Tom Martin
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
+ ****
  * 
  * sprintf() for JavaScript v.0.4
  *
@@ -350,6 +372,36 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ ****
+ *
+ * Sankey.js
+ * Copyright (c) 2012, Michael Bostock
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * * The name Michael Bostock may not be used to endorse or promote products
+ *   derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL MICHAEL BOSTOCK BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 function str_repeat(b, a) {
@@ -3015,8 +3067,8 @@ var CanvasXpress = function(f, d, a, b, e, g, c) {
 		this.href = location.href;
 		this.protocol = this.href.split(":")[0];
 		this.meta = {
-			version: 14.7,
-			buildDate: "03-06-2017",
+			version: 14.9,
+			buildDate: "03-14-2017",
 			ids: {},
 			start: new Date().getTime(),
 			data: false,
@@ -3739,8 +3791,14 @@ CanvasXpress.prototype.initInterface = function() {
 						i.onload = function() {
 							try {
 								var r = i.result;
-								var m = r.match(/,/g).length;
-								var o = r.match(/\t/g).length;
+								var m = 0;
+								var o = 0;
+								if (r.match(/,/g)) {
+									m = r.match(/,/g).length
+								}
+								if (r.match(/\t/g)) {
+									o = r.match(/\t/g).length
+								}
 								var n = b == "csv" && m > o ? "," : "\t";
 								var p = a.delimitedToArray(r, n, true);
 								p.renderTo = d[0];
@@ -4201,7 +4259,6 @@ CanvasXpress.prototype.initInterface = function() {
 				afterRender: [
 // Baohong : redundant operation for subsequent plots
 //                  ["setDimensions", [a.originalWidth, a.originalHeight, true]]
-
 				]
 			}
 		}
@@ -4443,7 +4500,7 @@ CanvasXpress.prototype.initInterface = function() {
 			a.resetLegendPosition();
 			a.resetDendrograms();
 			a.initializeGraph(true);
-			a.flashInfoSpan(a.width, 0, "<b>Initial Graph</b>", a.reproduceTime);
+			a.flashInfoSpan(0, 0, "<b>Initial Graph</b>", a.reproduceTime);
 			a[r[0][0]].apply(a, r[0][1]);
 			var f = 1;
 			var q = r.length;
@@ -4510,7 +4567,7 @@ CanvasXpress.prototype.initInterface = function() {
 						for (var w in C) {
 							a[w] = C[w]
 						}
-						a.flashInfoSpan(a.width, 0, u, a.reproduceTime * 2);
+						a.flashInfoSpan(0, 0, u, a.reproduceTime * 2);
 						if (D && p) {
 							var y = e[0];
 							p.src = CanvasXpress.images.mouseScroll;
@@ -4553,7 +4610,7 @@ CanvasXpress.prototype.initInterface = function() {
 						if (p) {
 							p.style.display = "none"
 						}
-						a.flashInfoSpan(a.width, 0, "<b>That's All Folks</b>", a.reproduceTime);
+						a.flashInfoSpan(0, 0, "<b>That's All Folks</b>", a.reproduceTime);
 						a.skipStack = false;
 						return
 					}
@@ -4917,6 +4974,8 @@ CanvasXpress.prototype.initConfig = function(a) {
 		b.push("legendFontSize");
 		this.legendScaleFontFactor = 1;
 		b.push("legendScaleFontFactor");
+		this.legendOrder = false;
+		b.push("legendOrder");
 		this.showDecorations = true;
 		b.push("showDecorations");
 		this.showDecorationsLegend = true;
@@ -5305,14 +5364,33 @@ CanvasXpress.prototype.initConfig = function(a) {
 		b.push("boxplotConnectWidth");
 		this.areaType = "normal";
 		b.push("areaType");
+		this.sankeyNodeWidth = 12;
+		b.push("sankeyNodeWidth");
+		this.sankeyIterations = 32;
+		b.push("sankeyIterations");
+		this.sankeySource = false;
+		b.push("sankeySource");
+		this.sankeyTarget = false;
+		b.push("sankeyTarget");
+		this.sankeyColor = "rgba(150,150,150,0.5)";
+		b.push("sankeyColor");
+		this.sankeyCoordinateColor = true;
+		b.push("sankeyCoordinateColor");
+		this.sankeyVar = false;
+		b.push("sankeyVar");
+		this.sankeyVarIndex = 0;
 		this.colorBy = false;
 		b.push("colorBy");
 		this.colorByShowLegend = true;
 		b.push("colorByShowLegend");
+		this.colorKey = false;
+		b.push("colorKey");
 		this.shapeBy = false;
 		b.push("shapeBy");
 		this.shapeByShowLegend = true;
 		b.push("shapeByShowLegend");
+		this.shapeKey = false;
+		b.push("shapeKey");
 		this.shapeByData = false;
 		b.push("shapeByData");
 		this.shapeByShape = false;
@@ -5323,6 +5401,8 @@ CanvasXpress.prototype.initConfig = function(a) {
 		b.push("sizeByContinuous");
 		this.sizeByShowLegend = true;
 		b.push("sizeByShowLegend");
+		this.sizeKey = false;
+		b.push("sizeKey");
 		this.sizeByData = false;
 		b.push("sizeByData");
 		this.outlineBy = false;
@@ -5335,6 +5415,8 @@ CanvasXpress.prototype.initConfig = function(a) {
 		b.push("patternBy");
 		this.patternByShowLegend = true;
 		b.push("patternByShowLegend");
+		this.patternKey = false;
+		b.push("patternKey");
 		this.patternByData = false;
 		b.push("patternByData");
 		this.connectBy = false;
@@ -6581,7 +6663,7 @@ CanvasXpress.prototype.initText = function() {
 	this.measureTextWidth = function(a, b) {
 		l = this.isMultipleLines(a);
 		if (l > 0) {
-			return (this.getFontPt(b) + this.margin) * l
+			return (this.getFontPt(b) + this.margin) * (l + 1)
 		} else {
 			return this.getFontPt(b)
 		}
@@ -6605,6 +6687,17 @@ CanvasXpress.prototype.initText = function() {
 			a = 1
 		}
 		return Math.ceil(1 / Math.sqrt(a) * d)
+	};
+	this.correctPrecisionBug = function(b) {
+		var a = b.toString();
+		if (a.match(/\.\d+00000+\d+$/)) {
+			a = a.replace(/00000+\d+$/, "")
+		} else {
+			if (a.match(/\.\d+99999+\d+$/)) {
+				a = a.replace(/99999+\d+$/, "9")
+			}
+		}
+		return Number(a)
 	};
 	this.formatNumber = function(b, a) {
 		if (a && Math.abs(b) < 99999) {
@@ -6904,31 +6997,32 @@ CanvasXpress.prototype.initTime = function() {
 	}
 };
 CanvasXpress.prototype.initColor = function() {
-	this.validateColor = function(f, d) {
-		if (f) {
-			f = f.toString();
-			var a = (/rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)/).exec(f);
-			var b = (/rgba\((\d{1,3}),(\d{1,3}),(\d{1,3}),([0-9\.]+)\)/).exec(f);
-			var e = (/^#?([0-9abcdef]{6})/i).exec(f);
-			if (this.colorNames.hasOwnProperty(f)) {
-				f = this.hexToRgb(this.colorNames[f])
+	this.validateColor = function(g, d, e) {
+		if (g) {
+			g = g.toString();
+			var a = (/rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)/).exec(g);
+			var b = (/rgba\((\d{1,3}),(\d{1,3}),(\d{1,3}),([0-9\.]+)\)/).exec(g);
+			var f = (/^#?([0-9abcdef]{6})/i).exec(g);
+			if (this.colorNames.hasOwnProperty(g)) {
+				g = this.hexToRgb(this.colorNames[g])
 			} else {
 				if (a != null) {
-					f = a[0]
+					g = a[0]
 				} else {
 					if (b != null) {
-						f = b[0]
+						g = b[0]
 					} else {
-						if (e != null) {
-							f = this.hexToRgb(e[0])
+						if (f != null) {
+							g = this.hexToRgb(f[0])
 						} else {
-							f = false
+							g = false
 						}
 					}
 				}
 			}
 		}
-		return f && d != null ? this.addColorTransparency(f, d) : f
+		g = g && d != null ? this.addColorTransparency(g, d) : g;
+		return g && e ? this.rgbToHex(g) : g
 	};
 	this.darkenLightenColor = function(j, e) {
 		j = this.rgbToHex(j).substring(1, 7);
@@ -6993,52 +7087,48 @@ CanvasXpress.prototype.initColor = function() {
 		c = c.charAt(0) == "#" ? c.substring(1, 7) : c;
 		return "rgb(" + b() + "," + a() + "," + d() + ")"
 	};
-	this.addColorTransparency = function(d, b, a) {
-		if (!a) {
+	this.addColorTransparency = function(e, d, b) {
+		if (!b) {
+			e = this.validateColor(e)
+		}
+		if (e) {
+			var a = e.match(/^rgba?\((\d{1,3},\d{1,3},\d{1,3})(?:,([0-9\.]+))?/i);
+			return "rgba(" + a[1] + "," + d + ")"
+		} else {
+			return false
+		}
+	};
+	this.removeColorTransparency = function(d, b) {
+		if (!b) {
 			d = this.validateColor(d)
 		}
-		if (d && d.match(/^rgba?\((\d{1,3},\d{1,3},\d{1,3})(?:,([0-9\.]+))?/i)) {
-			if (RegExp.$2) {
-				return "rgba(" + RegExp.$1 + "," + b + ")"
-			} else {
-				return "rgba(" + RegExp.$1 + "," + b + ")"
-			}
+		if (d) {
+			var a = d.match(/^rgba?\((\d{1,3},\d{1,3},\d{1,3})(?:,([0-9\.]+))?/i);
+			return "rgb(" + a[1] + ")"
 		} else {
 			return false
 		}
 	};
-	this.removeColorTransparency = function(b, a) {
-		if (!a) {
-			b = this.validateColor(b)
-		}
-		if (b && b.match(/^rgba?\((\d{1,3},\d{1,3},\d{1,3})(?:,([0-9\.]+))?/i)) {
-			if (RegExp.$2) {
-				return "rgb(" + RegExp.$1 + ")"
-			} else {
-				return "rgb(" + RegExp.$1 + ")"
-			}
-		} else {
-			return false
-		}
-	};
-	this.isColorTransparency = function(a) {
-		a = this.validateColor(a);
-		if (a && a.match(/^rgba?\((\d{1,3},\d{1,3},\d{1,3})(?:,([0-9\.]+))?/i)) {
-			return Number(RegExp.$2)
-		}
-		return null
-	};
-	this.isColorTransparent = function(b) {
+	this.isColorTransparency = function(b) {
 		b = this.validateColor(b);
-		var a;
-		if (b && b.match(/^rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)/)) {
-			a = false
+		if (b) {
+			var a = b.match(/^rgba?\((\d{1,3},\d{1,3},\d{1,3})(?:,([0-9\.]+))?/i);
+			return a[2] != null ? Number(a[2]) : null
+		}
+	};
+	this.isColorTransparent = function(d) {
+		d = this.validateColor(d);
+		var b;
+		if (d && d.match(/^rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)/)) {
+			return false
 		} else {
-			if (b && b.match(/^rgba?\((\d{1,3},\d{1,3},\d{1,3})(?:,([0-9\.]+))?/i)) {
-				a = RegExp.$2 == 0 ? true : false
+			if (d) {
+				var a = d.match(/^rgba?\((\d{1,3},\d{1,3},\d{1,3})(?:,([0-9\.]+))?/i);
+				return a[2] != null && a[2] == 0 ? true : false
+			} else {
+				return false
 			}
 		}
-		return a
 	};
 	this.disableGradientTransparencyShadow = function() {
 		if (!this.gradientTemp) {
@@ -7101,7 +7191,7 @@ CanvasXpress.prototype.initColor = function() {
 			h.addColorStop(1, e)
 		} else {
 			h.addColorStop(0, e);
-			h.addColorStop(1, b)
+			h.addColorStop(0.5, b)
 		}
 		return h
 	};
@@ -9506,6 +9596,7 @@ CanvasXpress.prototype.initAttributes = function() {
 			case "hull":
 			case "confidence":
 			case "violin":
+			case "bezier":
 				var ag = Number.MAX_VALUE;
 				var L = Number.MAX_VALUE * -1;
 				var af = Number.MAX_VALUE;
@@ -9522,134 +9613,163 @@ CanvasXpress.prototype.initAttributes = function() {
 						return false
 					}
 					if (V == "path" && aq) {}
-					if (V == "confidence") {
-						if (this.isArray(P[0])) {
+					if (V == "bezier") {
+						if (this.isNumeric(Q) && this.isNumeric(P) && this.isNumeric(ak)) {
+							Z = this.traceBezierCurve(Q[0], P[0], Q[1], P[1], Q[2], P[2], Q[3], P[3], 0.25, true);
+							for (var aj = 0; aj < Z.length; aj++) {
+								N.push(Z[aj][0], Z[aj][1])
+							}
+							Z = this.traceBezierCurve(Q[0], P[0] + ak, Q[1], P[1] + ak, Q[2], P[2] + ak, Q[3], P[3] + ak, 0.25);
+							for (var aj = 0; aj < Z.length; aj++) {
+								N.push(Z[aj][0], Z[aj][1])
+							}
 							for (var aj = 0; aj < Q.length; aj++) {
-								if (Q[aj] != null && P[aj][0] != null && P[aj][1] != null && this.isNumeric([Q[aj], P[aj][0], P[aj][1]])) {
-									ag = Math.min(ag, Q[aj]);
-									L = Math.max(L, Q[aj]);
-									af = Math.min(af, Math.min(P[aj][0], P[aj][1]));
-									J = Math.max(J, Math.max(P[aj][0], P[aj][1]));
-									M.push([Q[aj],
-										[P[aj][0], P[aj][1]]
-									]);
-									N.push(Q[aj], P[aj][0] - 2);
-									Z.push(P[aj][1] + 2, Q[aj])
-								}
+								ag = Math.min(ag, Q[aj]);
+								L = Math.max(L, Q[aj]);
+								af = Math.min(af, P[aj]);
+								J = Math.max(J, P[aj]);
+								M.push([Q[aj], P[aj]])
 							}
 							Q = (ag + L) / 2;
 							P = (af + J) / 2;
 							for (var aj = 0; aj < M.length; aj++) {
 								M[aj][0] -= Q;
-								M[aj][1][0] -= P;
-								M[aj][1][1] -= P;
-								ar.push(M[aj][0], [M[aj][1][0], M[aj][1][1]])
+								M[aj][1] -= P;
+								ar.push(M[aj][0], M[aj][1])
 							}
 						} else {
-							for (var aj = 0; aj < P.length; aj++) {
-								if (Q[aj][0] != null && Q[aj][1] != null && P[aj] != null && this.isNumeric([Q[aj][0], Q[aj][1], P[aj]])) {
-									ag = Math.min(ag, Math.min(Q[aj][0], Q[aj][1]));
-									L = Math.max(L, Math.max(Q[aj][0], Q[aj][1]));
-									af = Math.min(af, P[aj]);
-									J = Math.max(J, P[aj]);
-									M.push([
-										[Q[aj][0], Q[aj][1]], P[aj]
-									]);
-									N.push(Q[aj][0] - 2, P[aj]);
-									Z.push(P[aj], Q[aj][1] + 2)
-								}
-							}
-							Q = (ag + L) / 2;
-							P = (af + J) / 2;
-							for (var aj = 0; aj < M.length; aj++) {
-								M[aj][0][0] -= Q;
-								M[aj][0][1] -= Q;
-								M[aj][1] -= P;
-								ar.push([M[aj][0][0], M[aj][0][1]], M[aj][1])
-							}
+							return false
 						}
 					} else {
-						if (V == "arc2") {
-							Z = this.traceArc(Q, P, ak, W, an, true);
-							for (var aj = 0; aj < Z.length; aj++) {
-								N.push(Z[aj][0], Z[aj][1])
-							}
-							Z = this.traceArc(Q, P, ak - S, W, an);
-							for (var aj = 0; aj < Z.length; aj++) {
-								N.push(Z[aj][0], Z[aj][1])
-							}
-						} else {
-							if (V == "violin") {
-								if (Q[0].length == P[0].length && Q[1].length == P[1].length && Q[0].length == Q[1].length) {
-									for (var aj = 0; aj < Q[0].length; aj++) {
-										if (this.isNumeric([Q[0][aj], Q[1][aj], P[0][aj], P[1][aj]])) {
-											ag = Math.min(ag, Math.min(Q[0][aj], Q[1][aj]));
-											L = Math.max(L, Math.max(Q[0][aj], Q[1][aj]));
-											af = Math.min(af, Math.min(P[0][aj], P[1][aj]));
-											J = Math.max(J, Math.max(P[0][aj], P[1][aj]));
-											M.push([
-												[Q[0][aj], Q[1][aj]],
-												[P[0][aj], P[1][aj]]
-											]);
-											N.push(Q[0][aj], P[0][aj]);
-											Z.push(P[1][aj], Q[1][aj])
-										}
-									}
-									Q = (ag + L) / 2;
-									P = (af + J) / 2;
-									for (var aj = 0; aj < M.length; aj++) {
-										M[aj][0][0] -= Q;
-										M[aj][0][1] -= Q;
-										M[aj][1][0] -= P;
-										M[aj][1][1] -= P;
-										ar.push([M[aj][0][0], M[aj][0][1]], [M[aj][1][0], M[aj][1][1]])
-									}
-									N = N.concat(Z.reverse())
-								} else {
-									return false
-								}
-							} else {
+						if (V == "confidence") {
+							if (this.isArray(P[0])) {
 								for (var aj = 0; aj < Q.length; aj++) {
-									if (Q[aj] && P[aj] && this.isNumeric([Q[aj], P[aj]])) {
+									if (Q[aj] != null && P[aj][0] != null && P[aj][1] != null && this.isNumeric([Q[aj], P[aj][0], P[aj][1]])) {
 										ag = Math.min(ag, Q[aj]);
 										L = Math.max(L, Q[aj]);
+										af = Math.min(af, Math.min(P[aj][0], P[aj][1]));
+										J = Math.max(J, Math.max(P[aj][0], P[aj][1]));
+										M.push([Q[aj],
+											[P[aj][0], P[aj][1]]
+										]);
+										N.push(Q[aj], P[aj][0] - 2);
+										Z.push(P[aj][1] + 2, Q[aj])
+									}
+								}
+								Q = (ag + L) / 2;
+								P = (af + J) / 2;
+								for (var aj = 0; aj < M.length; aj++) {
+									M[aj][0] -= Q;
+									M[aj][1][0] -= P;
+									M[aj][1][1] -= P;
+									ar.push(M[aj][0], [M[aj][1][0], M[aj][1][1]])
+								}
+							} else {
+								for (var aj = 0; aj < P.length; aj++) {
+									if (Q[aj][0] != null && Q[aj][1] != null && P[aj] != null && this.isNumeric([Q[aj][0], Q[aj][1], P[aj]])) {
+										ag = Math.min(ag, Math.min(Q[aj][0], Q[aj][1]));
+										L = Math.max(L, Math.max(Q[aj][0], Q[aj][1]));
 										af = Math.min(af, P[aj]);
 										J = Math.max(J, P[aj]);
-										M.push([Q[aj], P[aj]]);
-										if (V == "spline") {
-											N.push(Q[aj], P[aj] - 2);
-											Z.push(P[aj] + 2, Q[aj])
-										} else {
-											if (V != "arch") {
-												N.push(Q[aj], P[aj])
+										M.push([
+											[Q[aj][0], Q[aj][1]], P[aj]
+										]);
+										N.push(Q[aj][0] - 2, P[aj]);
+										Z.push(P[aj], Q[aj][1] + 2)
+									}
+								}
+								Q = (ag + L) / 2;
+								P = (af + J) / 2;
+								for (var aj = 0; aj < M.length; aj++) {
+									M[aj][0][0] -= Q;
+									M[aj][0][1] -= Q;
+									M[aj][1] -= P;
+									ar.push([M[aj][0][0], M[aj][0][1]], M[aj][1])
+								}
+							}
+						} else {
+							if (V == "arc2") {
+								Z = this.traceArc(Q, P, ak, W, an, true);
+								for (var aj = 0; aj < Z.length; aj++) {
+									N.push(Z[aj][0], Z[aj][1])
+								}
+								Z = this.traceArc(Q, P, ak - S, W, an);
+								for (var aj = 0; aj < Z.length; aj++) {
+									N.push(Z[aj][0], Z[aj][1])
+								}
+							} else {
+								if (V == "violin") {
+									if (Q[0].length == P[0].length && Q[1].length == P[1].length && Q[0].length == Q[1].length) {
+										for (var aj = 0; aj < Q[0].length; aj++) {
+											if (this.isNumeric([Q[0][aj], Q[1][aj], P[0][aj], P[1][aj]])) {
+												ag = Math.min(ag, Math.min(Q[0][aj], Q[1][aj]));
+												L = Math.max(L, Math.max(Q[0][aj], Q[1][aj]));
+												af = Math.min(af, Math.min(P[0][aj], P[1][aj]));
+												J = Math.max(J, Math.max(P[0][aj], P[1][aj]));
+												M.push([
+													[Q[0][aj], Q[1][aj]],
+													[P[0][aj], P[1][aj]]
+												]);
+												N.push(Q[0][aj], P[0][aj]);
+												Z.push(P[1][aj], Q[1][aj])
+											}
+										}
+										Q = (ag + L) / 2;
+										P = (af + J) / 2;
+										for (var aj = 0; aj < M.length; aj++) {
+											M[aj][0][0] -= Q;
+											M[aj][0][1] -= Q;
+											M[aj][1][0] -= P;
+											M[aj][1][1] -= P;
+											ar.push([M[aj][0][0], M[aj][0][1]], [M[aj][1][0], M[aj][1][1]])
+										}
+										N = N.concat(Z.reverse())
+									} else {
+										return false
+									}
+								} else {
+									for (var aj = 0; aj < Q.length; aj++) {
+										if (Q[aj] && P[aj] && this.isNumeric([Q[aj], P[aj]])) {
+											ag = Math.min(ag, Q[aj]);
+											L = Math.max(L, Q[aj]);
+											af = Math.min(af, P[aj]);
+											J = Math.max(J, P[aj]);
+											M.push([Q[aj], P[aj]]);
+											if (V == "spline") {
+												N.push(Q[aj], P[aj] - 2);
+												Z.push(P[aj] + 2, Q[aj])
+											} else {
+												if (V != "arch") {
+													N.push(Q[aj], P[aj])
+												}
 											}
 										}
 									}
-								}
-								if (V == "arch") {
-									Z = this.traceQuadraticCurve(Q[0], P[0], Q[1], P[1], Q[2], P[2], 0.25, true);
-									for (var aj = 0; aj < Z.length; aj++) {
-										N.push(Z[aj][0], Z[aj][1])
+									if (V == "arch") {
+										Z = this.traceQuadraticCurve(Q[0], P[0], Q[1], P[1], Q[2], P[2], 0.25, true);
+										for (var aj = 0; aj < Z.length; aj++) {
+											N.push(Z[aj][0], Z[aj][1])
+										}
+										Z = this.traceArc(Q[4], P[4], ak, S[2], S[3]);
+										for (var aj = 1; aj < Z.length; aj++) {
+											N.push(Z[aj][0], Z[aj][1])
+										}
+										Z = this.traceQuadraticCurve(Q[3], P[3], Q[4], P[4], Q[5], P[5], 0.25, true);
+										for (var aj = 0; aj < Z.length; aj++) {
+											N.push(Z[aj][0], Z[aj][1])
+										}
+										Z = this.traceArc(Q[1], P[1], ak, S[0], S[1]);
+										for (var aj = 0; aj < Z.length; aj++) {
+											N.push(Z[aj][0], Z[aj][1])
+										}
 									}
-									Z = this.traceArc(Q[4], P[4], ak, S[2], S[3]);
-									for (var aj = 1; aj < Z.length; aj++) {
-										N.push(Z[aj][0], Z[aj][1])
+									Q = V == "arch" ? Q[1] : (ag + L) / 2;
+									P = V == "arch" ? P[1] : (af + J) / 2;
+									for (var aj = 0; aj < M.length; aj++) {
+										M[aj][0] -= Q;
+										M[aj][1] -= P;
+										ar.push(M[aj][0], M[aj][1])
 									}
-									Z = this.traceQuadraticCurve(Q[3], P[3], Q[4], P[4], Q[5], P[5], 0.25, true);
-									for (var aj = 0; aj < Z.length; aj++) {
-										N.push(Z[aj][0], Z[aj][1])
-									}
-									Z = this.traceArc(Q[1], P[1], ak, S[0], S[1]);
-									for (var aj = 0; aj < Z.length; aj++) {
-										N.push(Z[aj][0], Z[aj][1])
-									}
-								}
-								Q = V == "arch" ? Q[1] : (ag + L) / 2;
-								P = V == "arch" ? P[1] : (af + J) / 2;
-								for (var aj = 0; aj < M.length; aj++) {
-									M[aj][0] -= Q;
-									M[aj][1] -= P;
-									ar.push(M[aj][0], M[aj][1])
 								}
 							}
 						}
@@ -10092,6 +10212,16 @@ CanvasXpress.prototype.initAttributes = function() {
 					I.lineTo(ar[0], ar[1][0]);
 					this.drawShapeFillStroke(al, ab, aa)
 				}
+				break;
+			case "bezier":
+				this.drawShapeSetShapeStyle(Q, P, S, ak, al, ab, aa, X, O);
+				I.beginPath();
+				I.moveTo(ar[0], ar[1]);
+				I.bezierCurveTo(ar[2], ar[3], ar[4], ar[5], ar[6], ar[7]);
+				I.lineTo(ar[6], ar[7] + ak);
+				I.bezierCurveTo(ar[4], ar[5] + ak, ar[2], ar[3] + ak, ar[0], ar[1] + ak);
+				I.lineTo(ar[0], ar[1]);
+				this.drawShapeFillStroke(al, ab, aa);
 				break;
 			case "ellipse":
 				var a = j * 0.5522848;
@@ -10735,17 +10865,6 @@ CanvasXpress.prototype.initRangeAlgorithms = function() {
 		}
 		return l
 	};
-	this.correctPrecisionBug = function(b) {
-		var a = b.toString();
-		if (a.match(/\.\d+00000+\d+$/)) {
-			a = a.replace(/00000+\d+$/, "")
-		} else {
-			if (a.match(/\.\d+99999+\d+$/)) {
-				a = a.replace(/99999+\d+$/, "9")
-			}
-		}
-		return Number(a)
-	};
 	this.getAxisDecimals1 = function(a) {
 		return a === 0 ? 0 : a.toExponential().replace(/e[\+\-0-9]*$/, "").replace(/^0\.0*|\./, "").length
 	};
@@ -10920,7 +11039,7 @@ CanvasXpress.prototype.initGeneralUtils = function() {
 		return JSON.stringify(d) == JSON.stringify(c)
 	};
 	this.isNumber = function(a) {
-		return !isNaN(parseFloat(a)) && isFinite(a)
+		return a === null || a === undefined ? true : !isNaN(parseFloat(a)) && isFinite(a)
 	};
 	this.isNumeric2DArray = function(a) {
 		for (var c = 0; c < a.length; c++) {
@@ -11367,7 +11486,8 @@ CanvasXpress.prototype.initConfigUtils = function() {
 	this.setPixelImage = function() {
 		this.beaconImage = this.$cX("img", {
 			id: this.target + "-cX-Beacon-Image",
-			src: navigator.onLine && this.protocol != "file" ? "http://www.canvasxpress.org/cgi-bin/services.pl?beacon=" + this.meta.client : CanvasXpress.images.canvasXpress
+//			src: navigator.onLine && this.protocol != "file" ? "http://www.canvasxpress.org/cgi-bin/services.pl?beacon=" + this.meta.client : CanvasXpress.images.canvasXpress
+			src: CanvasXpress.images.canvasXpress	// Baohong
 		})
 	};
 	this.encode = function(a) {
@@ -11539,13 +11659,16 @@ CanvasXpress.prototype.initConfigUtils = function() {
 	this.getGroupColor = function(b, e) {
 		if (this.isGroupedData) {
 			var a = this.data.w.grps[e];
+			this.isGroupedData = false;
 			var h = this.getPropertyValue(b, a[0], "colorBy");
 			for (var d = 1; d < a.length; d++) {
 				var f = this.getPropertyValue(b, a[d], "colorBy");
 				if (f != h) {
+					this.isGroupedData = true;
 					return this.foreground
 				}
 			}
+			this.isGroupedData = true;
 			return h
 		} else {
 			return this.getPropertyValue(b, e, "colorBy")
@@ -12397,7 +12520,7 @@ CanvasXpress.prototype.initConfigUtils = function() {
 						this.errorBar(H, S, H, S - A, -Q, X)
 					}
 					if (this.showDataValues) {
-						this.drawText(U[P], H, E - (C + this.overlayFontSize), this.overlayFont, W[P], "center", "bottom");
+						this.drawText(this.correctPrecisionBug(U[P]), H, E - (C + this.overlayFontSize), this.overlayFont, W[P], "center", "bottom");
 						this.appendArea(G)
 					}
 				}
@@ -12429,7 +12552,7 @@ CanvasXpress.prototype.initConfigUtils = function() {
 						this.errorBar(S, H, S - A, H, Q, X)
 					}
 					if (this.showDataValues) {
-						this.drawText(U[P], S + this.overlayFontSize, H, this.overlayFont, W[P], "left", "middle");
+						this.drawText(this.correctPrecisionBug(U[P]), S + this.overlayFontSize, H, this.overlayFont, W[P], "left", "middle");
 						this.appendArea(G)
 					}
 				}
@@ -13227,8 +13350,8 @@ CanvasXpress.prototype.initConfigUtils = function() {
 					if (this.showErrorBars && this.isGroupedData && X[T] && X[T] && !isNaN(X[T][0]) && !isNaN(X[T][1])) {
 						F = I - ((X[T][0] - P) * G);
 						x = (X[T][1] / 2) * G;
-						this.drawShape("diamond", Q + (W / 2), F, this.margin * 2, this.margin * 2, this.foreground, this.foreground, "closed", false, false, K);
-						this.drawLine("line", Q + (W / 2), F - x, Q + (W / 2), F + x, this.foreground, this.lineThickness * 2, "butt", false, false, K)
+						this.drawShape("diamond", Q, F, this.margin * 2, this.margin * 2, this.foreground, this.foreground, "closed", false, false, K);
+						this.drawLine("line", Q, F - x, Q, F + x, this.foreground, this.lineThickness * 2, "butt", false, false, K)
 					}
 				}
 				Q += L
@@ -13262,8 +13385,8 @@ CanvasXpress.prototype.initConfigUtils = function() {
 				if (this.showErrorBars && this.isGroupedData && X[T] && X[T] && !isNaN(X[T][0]) && !isNaN(X[T][1])) {
 					F = Q + ((X[T][0] - P) * G);
 					x = (X[T][1] / 2) * G;
-					this.drawShape("diamond", F, I + (W / 2), this.margin * 2, this.margin * 2, this.foreground, this.foreground, "closed", false, false, K);
-					this.drawLine("line", F - x, I + (W / 2), F + x, I + (W / 2), this.foreground, this.lineThickness * 2, "butt", false, false, K)
+					this.drawShape("diamond", F, I, this.margin * 2, this.margin * 2, this.foreground, this.foreground, "closed", false, false, K);
+					this.drawLine("line", F - x, I, F + x, I, this.foreground, this.lineThickness * 2, "butt", false, false, K)
 				}
 				I += L
 			}
@@ -13320,7 +13443,7 @@ CanvasXpress.prototype.initConfigUtils = function() {
 				}
 			}
 			if (this.showDataValues) {
-				this.drawText(n, (E + k) - 2, (x + G) - 2, this.overlayFont, this.foreground, "right", "bottom")
+				this.drawText(this.correctPrecisionBug(n), (E + k) - 2, (x + G) - 2, this.overlayFont, this.foreground, "right", "bottom")
 			}
 			E += k;
 			s += k
@@ -13403,6 +13526,17 @@ CanvasXpress.prototype.initConfigUtils = function() {
 			} else {
 				k(b)
 			}
+		}
+	};
+	this.drawSankey = function(b) {
+		var f = b.links[0].target.x - b.links[0].source.x;
+		for (var a = 0; a < b.links.length; a++) {
+			var c = b.links[a];
+			this.addArea(this.drawShape("bezier", c.plotX, c.plotY, f, c.dy, c.color, c.color, false, c.colors), c.tooltip)
+		}
+		for (var a = 0; a < b.nodes.length; a++) {
+			var e = b.nodes[a];
+			this.addArea(this.rectangle(e.plotX, e.plotY, e.dx, e.dy, e.color, this.foreground), e.tooltip)
 		}
 	};
 	this.zoomOncoprintVariables = function(c) {
@@ -14746,18 +14880,37 @@ CanvasXpress.prototype.initLegendUtils = function() {
 				}
 			}
 			r = h.getKeys(r);
-			r.sort();
+			if (A.type == "Numeric") {
+				if (A.orderS) {
+					r.sort(function(l, i) {
+						return A.orderS[l] - A.orderS[i]
+					})
+				} else {
+					r.sort(function(l, i) {
+						return l - i
+					});
+					A.orderS = {};
+					for (var F = 0; F < r.length; F++) {
+						A.orderS[r[F]] = F
+					}
+				}
+			} else {
+				r.sort(function(l, i) {
+					return A.order[l] - A.order[i]
+				})
+			}
 			for (var F = 0; F < r.length; F++) {
-				var v = r[F];
+				var v = r[F] != null ? r[F] : "NA";
 				var G = h.measureText(v, h.legendFont);
 				if (G > E) {
 					E = G;
 					h["legend" + C + "sMax"] = v
 				}
-				B[v] = A.order[v] % h[a].length;
+				B[v] = (A.type == "Numeric" ? A.orderS[v] : A.order[v]) % h[a].length;
 				h["legend" + C + "s"][v] = h[a][B[v]];
 				u++
 			}
+			h["legend" + C + "sS"] = r;
 			z = H == "m" || H == "modified" ? h["legend" + C + "sMax"] : false;
 			h["legend" + C + "sN"] = u;
 			h["legend" + C + "Meta"] = A;
@@ -14803,7 +14956,7 @@ CanvasXpress.prototype.initLegendUtils = function() {
 						if (this.data.x && this.data.x.hasOwnProperty(this[b])) {
 							var d = this.meta.data.x[this[b]];
 							this[k + "ByType"] = "x";
-							if (d.type == "Numeric") {
+							if (d.type == "Numeric" && !d[b]) {
 								n(d, e)
 							} else {
 								j(d, "x", b, e)
@@ -14812,7 +14965,7 @@ CanvasXpress.prototype.initLegendUtils = function() {
 							if (this.data.z && this.data.z.hasOwnProperty(this[b])) {
 								var d = this.meta.data.z[this[b]];
 								this[k + "ByType"] = "z";
-								if (d.type == "Numeric") {
+								if (d.type == "Numeric" && !d[b]) {
 									n(d, e)
 								} else {
 									j(d, "z", b, e)
@@ -15417,7 +15570,7 @@ CanvasXpress.prototype.initLegendUtils = function() {
 						this.drawLegendBackgroundBox(n, B, this.legendVariableWidth, this.legendVariableHeight);
 						this.addArea(["rect", n, B, n + this.legendVariableWidth, B + this.legendVariableHeight], [-1], "-legend-variable")
 					} else {
-						if (this.graphType == "Bar" || this.graphType == "Line" || this.graphType == "Area" || this.graphType == "Dotplot" || this.graphType == "Stacked" || this.graphType == "StackedPercent" || this.graphType == "Boxplot") {
+						if (this.graphType == "Bar" || this.graphType == "Line" || this.graphType == "ParallelCoordinates" || this.graphType == "Area" || this.graphType == "Dotplot" || this.graphType == "Stacked" || this.graphType == "StackedPercent" || this.graphType == "Boxplot") {
 							this.drawLegendBackgroundBox(n, B, this.legendVariableWidth, this.legendVariableHeight, true);
 							var x = this.legendVariableWidth / this.legendColumns;
 							var b = Math.ceil(this.varIndices.length / this.legendColumns);
@@ -15430,7 +15583,7 @@ CanvasXpress.prototype.initLegendUtils = function() {
 										var f = this.getVariableColor(this.data.y.vars[l]);
 										var k = "closed";
 										var p = this.shortenText(this.data.y.vars[l], this.maxVarStringLen);
-										if (this.graphType == "Line") {
+										if (this.graphType == "Line" || this.graphType == "ParallelCoordinates") {
 											this.addArea(this.drawLine("line", z, c + r, z + m, c + r, f), ["Var-" + l]);
 											if (this.lineDecoration) {
 												this.drawShape(this.lineDecoration == "symbol" ? this.shapes[s % this.shapes.length] : "circle", z + r, c + r, r, r, f, f, k)
@@ -15562,7 +15715,7 @@ CanvasXpress.prototype.initLegendUtils = function() {
 			var a = m.decs;
 			var o = m.vals;
 			var n = this.heatmapIndicatorWidth / (t - q);
-			var z = this.graphType == "Network" || this.graphType == "Circular" ? m : m.colorBrew;
+			var z = this.graphType == "Network" || this.graphType == "Circular" ? m : m.colorBrew ? m.colorBrew : this.meta.def.colorBrew;
 			var h = this.heatmapIndicatorWidth / this.colorSpectrumNumber;
 			if (this[f] && this[f].toString().match(/top|bottom/)) {
 				if (D || this.colorBy || this.outlineBy || this.colorNodeBy) {
@@ -15695,7 +15848,7 @@ CanvasXpress.prototype.initLegendUtils = function() {
 	};
 	this.drawColorLegend = function(a, b, c) {
 		if ((this.outlineBy && this.isMultidimensionalData) || (this.colorBy && ((this.data.x && this.data.x.hasOwnProperty(this.colorBy)) || (this.data.z && this.data.z.hasOwnProperty(this.colorBy)) || this.getSampleIndices(this.colorBy) > -1))) {
-			if (c.type == "Numeric") {
+			if (c.type == "Numeric" && !c.colorBy) {
 				this.drawColorIndicator(a, b, c)
 			} else {
 				this.drawPropertyLegend("Color", a, b, c)
@@ -15711,71 +15864,75 @@ CanvasXpress.prototype.initLegendUtils = function() {
 	this.drawPatternLegend = function(a, b, c) {
 		this.drawPropertyLegend("Pattern", a, b, c)
 	};
-	this.drawPropertyLegend = function(f, w, h, m) {
-		var o = f.toLowerCase();
-		if ((this[o + "By"] && this.isMultidimensionalData) || (this[o + "By"] && ((this.data.x && this.data.x.hasOwnProperty(this[o + "By"])) || (this.data.z && this.data.z.hasOwnProperty(this[o + "By"])) || this.getSampleIndices(this[o + "By"]) > -1))) {
-			var x = f == "Size" ? 0 : this.getDiameterLegend();
+	this.drawPropertyLegend = function(f, A, h, o) {
+		var s = f.toLowerCase();
+		if ((this[s + "By"] && this.isMultidimensionalData) || (this[s + "By"] && ((this.data.x && this.data.x.hasOwnProperty(this[s + "By"])) || (this.data.z && this.data.z.hasOwnProperty(this[s + "By"])) || this.getSampleIndices(this[s + "By"]) > -1))) {
+			var B = f == "Size" ? 0 : this.getDiameterLegend();
 			if (f == "Size") {
-				for (var v = 0; v < this.legendSizesN; v++) {
-					x = Math.max(x, this.sizes[v])
+				for (var z = 0; z < this.legendSizesN; z++) {
+					B = Math.max(B, this.sizes[z])
 				}
 			}
-			var q = this.getFontPt(this.legendFont);
-			var j = q / 2;
+			var u = this.getFontPt(this.legendFont);
+			var j = u / 2;
 			var a = this.legendColumns > this["legend" + f + "sN"] ? this["legend" + f + "sN"] : this.legendColumns;
 			var e = Math.ceil(this["legend" + f + "sN"] / a);
-			var k = this["legend" + f + "Width"] / a;
+			var l = this["legend" + f + "Width"] / a;
 			var g = h + this.margin + j;
-			var u = Math.max(x, q);
-			var t = 0;
+			var y = Math.max(B, u);
+			var w = 0;
 			this.disableGradientTransparencyShadow();
 			if (this.legendBox && this.legendBackgroundColor) {
-				this.rectangle(w, h, this["legend" + f + "Width"], this["legend" + f + "Height"], this.legendBackgroundColor, this.legendBoxColor)
+				this.rectangle(A, h, this["legend" + f + "Width"], this["legend" + f + "Height"], this.legendBackgroundColor, this.legendBoxColor)
 			} else {
 				if (this.legendBox) {
-					this.rectangle(w, h, this["legend" + f + "Width"], this["legend" + f + "Height"], false, this.legendBoxColor, "open")
+					this.rectangle(A, h, this["legend" + f + "Width"], this["legend" + f + "Height"], false, this.legendBoxColor, "open")
 				}
 			}
 			this.enableGradientTransparencyShadow();
-			var z = f == "Color" && this.outlineBy ? this.outlineBy : this[o + "By"];
-			this.drawText(z, w + (this["legend" + f + "Width"] / 2), g, this.legendFont, this.colorLegend, "center", "middle");
+			var D = f == "Color" && this.outlineBy ? this.outlineBy : this[s + "By"];
+			this.drawText(D, A + (this["legend" + f + "Width"] / 2), g, this.legendFont, this.colorLegend, "center", "middle");
 			g += j + this.margin;
 			this.disableGradientTransparencyShadow();
-			this.drawLine("line", w, g, w + this["legend" + f + "Width"], g, this.legendBoxColor);
+			this.drawLine("line", A, g, A + this["legend" + f + "Width"], g, this.legendBoxColor);
 			this.enableGradientTransparencyShadow();
-			g += this.margin + (u / 2);
-			var b = this.sortObject(this["legend" + f + "s"]);
-			for (var n = 0; n < e; n++) {
-				for (var y = 0; y < a; y++) {
-					var l = w + this.margin + x / 2 + (k * y);
-					if (t < this["legend" + f + "sN"]) {
-						var s = b[t];
+			g += this.margin + (y / 2);
+			var b = this["legend" + f + "sS"] || this.sortObject(this["legend" + f + "s"]);
+			for (var q = 0; q < e; q++) {
+				for (var C = 0; C < a; C++) {
+					var m = A + this.margin + B / 2 + (l * C);
+					if (w < this["legend" + f + "sN"]) {
+						var v = b[w];
 						if (f == "Color") {
+							var k = o.colorBy && o.colorBy.hasOwnProperty(v) ? o.colorBy[v] : this.legendColors[v];
 							if (this.outlineBy) {
-								this.drawShape("circle", l, g, x, x, false, this.legendColors[s], "open", false, 2)
+								this.drawShape("circle", m, g, B, B, false, k, "open", false, 2)
 							} else {
-								this.drawShape("circle", l, g, x, x, this.legendColors[s], this.foreground, "closed")
+								this.drawShape("circle", m, g, B, B, k, this.foreground, "closed")
 							}
 						} else {
 							if (f == "Shape") {
-								this.drawShape(this.legendShapes[s], l, g, x, x, this.background, this.foreground, "closed")
+								var t = o.shapeBy && o.shapeBy.hasOwnProperty(v) ? o.shapeBy[v] : this.legendShapes[v];
+								this.drawShape(t, m, g, B, B, this.background, this.foreground, "closed")
 							} else {
 								if (f == "Size") {
-									this.drawShape("circle", l, g, this.legendSizes[s], this.legendSizes[s], this.background, this.foreground, "closed")
+									var x = o.sizeBy && o.sizeBy.hasOwnProperty(v) ? o.sizeBy[v] : this.legendSizes[v];
+									this.drawShape("circle", m, g, x, x, this.background, this.foreground, "closed")
 								} else {
 									if (f == "Pattern") {
-										this.drawShape("square", l, g, x, x, this.background, this.foreground, this.legendPatterns[s])
+										var n = o.patternBy && o.patternBy.hasOwnProperty(v) ? o.patternBy[v] : this.legendPatterns[v];
+										this.drawShape("square", m, g, B, B, this.background, this.foreground, n)
 									}
 								}
 							}
 						}
-						this.drawText(s, l + (u / 2) + this.margin, g, this.legendFont, this.colorLegend, "left", "middle")
+						this.drawText(v, m + (y / 2) + this.margin, g, this.legendFont, this.colorLegend, "left", "middle")
 					}
-					t++
+					w++
 				}
-				g += this.margin + u
+				g += this.margin + y
 			}
-			this.addArea(["rect", w, h, w + this["legend" + f + "Width"], h + this["legend" + f + "Height"]], [-1], "-legend-" + o)
+			this.addArea(["rect", A, h, A + this["legend" + f + "Width"], h + this["legend" + f + "Height"]], [-1], "-legend-" + s)
 		}
 	};
 	this.drawGenericLegend = function(a, p, k, e, o, j) {
@@ -16244,7 +16401,7 @@ CanvasXpress.prototype.initLegendUtils = function() {
 			if (this.graphType == "Circular") {
 				this.drawCircularLegend()
 			} else {
-				if (this.graphType.match(/Scatter/) || this.is3DPlot || ((this.colorBy || this.shapeBy || this.sizeBy || this.patternBy) && this.graphType.match(/^Bar$|Boxplot|Dotplot|Treemap|TagCloud|ParallelCoordinates|Line|Heatmap|Stacked/))) {
+				if (this.graphType.match(/Scatter/) || this.is3DPlot || ((this.colorBy || this.shapeBy || this.sizeBy || this.patternBy) && this.graphType.match(/^Bar$|Boxplot|Dotplot|Treemap|TagCloud|ParallelCoordinates|Sankey|Line|Heatmap|Stacked/))) {
 					this.drawScatterLegend();
 					if (this.isOncoprint) {
 						this.drawOncoprintLegend()
@@ -16260,7 +16417,7 @@ CanvasXpress.prototype.initLegendUtils = function() {
 	this.draw1DLegend = function() {
 		this.drawStockIndicatorsLegend();
 		if (this.showLegend && ((this.graphType != "Heatmap") || (this.graphType == "Heatmap" && (this.colorBy || this.shapeBy || this.sizeBy || this.patternBy)))) {
-			if (this.isMultidimensionalData || ((this.colorBy || this.shapeBy || this.sizeBy || this.patternBy) && this.graphType.match(/^Bar$|Boxplot|Dotplot|Treemap|TagCloud|ParallelCoordinates|Line|Heatmap|Stacked/))) {
+			if (this.isMultidimensionalData || ((this.colorBy || this.shapeBy || this.sizeBy || this.patternBy) && this.graphType.match(/^Bar$|Boxplot|Dotplot|Treemap|TagCloud|ParallelCoordinates|Sankey|Line|Heatmap|Stacked/))) {
 				if (this.isOncoprint) {
 					this.drawOncoprintLegend()
 				}
@@ -16374,40 +16531,41 @@ CanvasXpress.prototype.initLegendUtils = function() {
 			}
 		}
 	};
-	this.setMarker = function(a) {
-		var f = this;
-		var e = function() {
-			if (a.fontSize) {
-				return (a.fontStyle || "") + " " + parseInt(a.fontSize) + "px " + f.fontName
+	this.setMarker = function(d) {
+		var h = this;
+		var b = function() {
+			if (d.fontSize) {
+				return (d.fontStyle || "") + " " + parseInt(d.fontSize) + "px " + h.fontName
 			} else {
-				return f.decorationFont
+				return h.decorationFont
 			}
 		};
-		var d = this.graphType.match(/Treemap|Stacked/) ? true : false;
-		var g = this.isArray(a.variable) ? this.getVariableIndices(a.variable) : this.getVariableIndices([a.variable]);
-		var b = this.isArray(a.sample) ? this.getSampleIndices(a.sample, d) : this.getSampleIndices([a.sample], d);
-		var h = g.concat(b).join(":");
-		var c = this.dataCentroid[h] ? this.dataEvent[this.dataCentroid[h]][5][0][2] : false;
-		if (!a.id) {
-			a.id = this.newId(this.target + "-marker-")
+		var c = this.graphType.match(/Treemap|Stacked/) ? true : false;
+		var e = this.isArray(d.variable) ? this.getVariableIndices(d.variable) : this.getVariableIndices([d.variable]);
+		var f = this.isArray(d.sample) ? this.getSampleIndices(d.sample, c) : this.getSampleIndices([d.sample], c);
+		var a = e.concat(f).join(":");
+		var g = this.dataCentroid[a] != null ? this.dataEvent[this.dataCentroid[a]][5][0][2] : false;
+		var i = this.dataCentroid[a] != null ? this.dataEvent[this.dataCentroid[a]][5][0][1][4] : false;
+		if (!d.id) {
+			d.id = this.newId(this.target + "-marker-")
 		}
-		a.vi = g;
-		a.si = b;
-		if (!this.isArray(a.variable)) {
-			a.variable = [a.variable]
+		d.vi = e;
+		d.si = f;
+		if (!this.isArray(d.variable)) {
+			d.variable = [d.variable]
 		}
-		if (!this.isArray(a.sample)) {
-			a.sample = [a.sample]
+		if (!this.isArray(d.sample)) {
+			d.sample = [d.sample]
 		}
-		if (!a.type) {
-			a.type = "line"
+		if (!d.type) {
+			d.type = "line"
 		}
-		a.b = a.b || [this.marginLeft + this.offsetX + this.left, this.marginTop + this.offsetY + this.top, this.x, this.y];
-		a.len = this.measureText(a.text, e());
-		a.width = this.measureTextWidth(a.text, e());
-		a.tx = c ? c[0] : false;
-		a.ty = c ? c[1] : false;
-		return a
+		d.b = d.b || [this.marginLeft + this.offsetX + this.left, this.marginTop + this.offsetY + this.top, this.x, this.y];
+		d.len = this.measureText(d.text, b());
+		d.width = this.measureTextWidth(d.text, b());
+		d.tx = g ? g[0] : false;
+		d.ty = g && d.type != "line" ? g[1] - ((i / 2) + d.width) : g ? g[1] : false;
+		return d
 	};
 	this.getMarker = function(c) {
 		if (c && this.data.d && this.data.d.marker) {
@@ -16433,54 +16591,62 @@ CanvasXpress.prototype.initLegendUtils = function() {
 			for (var f = 0; f < k.length; f++) {
 				var e = this.setMarker(k[f]);
 				if (e.tx && e.ty && e.b) {
-					var o = e.x ? e.b[0] + (e.x * e.b[2]) : this.graphOrientation == "vertical" ? e.tx : e.tx + this.margin;
-					var n = e.y ? e.b[1] + (e.y * e.b[3]) : this.graphOrientation == "vertical" ? e.ty - this.margin : e.ty;
-					var a = this.drawText(e.text, o, n, b(e), e.color || this.decorationsColor, e.align, e.baseline);
-					var p = this.addArea(this.cloneObject(a), ["Marker:" + e.id]);
-					var l = e.color || this.decorationsColor;
-					var g;
-					e.curX = o;
-					e.curY = n;
-					if (e.tx < a[1] - e.len) {
-						g = (a[2] + a[4]) / 2;
-						this.drawLine("line", a[1] - this.margin, a[2], a[1] - this.margin, a[4], l);
-						this.appendArea(p);
-						this.drawLine(e.type, e.tx, e.ty, a[1] - this.margin, g, l);
-						this.appendArea(p)
+					var o, n;
+					if (e.type == "line") {
+						o = e.x ? e.b[0] + (e.x * e.b[2]) : this.graphOrientation == "vertical" ? e.tx : e.tx + this.margin;
+						n = e.y ? e.b[1] + (e.y * e.b[3]) : this.graphOrientation == "vertical" ? e.ty - this.margin : e.ty
 					} else {
-						if (e.tx > a[3] + e.len) {
+						o = e.tx;
+						n = e.ty
+					}
+					var a = this.drawText(e.text, o, n, b(e), e.color || this.decorationsColor, e.align, e.baseline);
+					if (e.type == "line") {
+						var p = this.addArea(this.cloneObject(a), ["Marker:" + e.id]);
+						var l = e.color || this.decorationsColor;
+						var g;
+						e.curX = o;
+						e.curY = n;
+						if (e.tx < a[1] - e.len) {
 							g = (a[2] + a[4]) / 2;
-							this.drawLine("line", a[3] + this.margin, a[2], a[3] + this.margin, a[4], l);
+							this.drawLine("line", a[1] - this.margin, a[2], a[1] - this.margin, a[4], l);
 							this.appendArea(p);
-							this.drawLine(e.type, e.tx, e.ty, a[3] + this.margin, g, l);
+							this.drawLine(e.type, e.tx, e.ty, a[1] - this.margin, g, l);
 							this.appendArea(p)
 						} else {
-							if (e.ty > a[4] + (e.width * 0.2)) {
-								g = (a[1] + a[3]) / 2;
-								this.drawLine("line", a[1], a[4] + this.margin, a[3], a[4] + this.margin, l);
+							if (e.tx > a[3] + e.len) {
+								g = (a[2] + a[4]) / 2;
+								this.drawLine("line", a[3] + this.margin, a[2], a[3] + this.margin, a[4], l);
 								this.appendArea(p);
-								this.drawLine(e.type, e.tx, e.ty, g, a[4] + this.margin, l);
+								this.drawLine(e.type, e.tx, e.ty, a[3] + this.margin, g, l);
 								this.appendArea(p)
 							} else {
-								if (e.ty < a[2] - (e.width * 0.2)) {
+								if (e.ty > a[4] + (e.width * 0.2)) {
 									g = (a[1] + a[3]) / 2;
-									this.drawLine("line", a[1], a[2] - this.margin, a[3], a[2] - this.margin, l);
+									this.drawLine("line", a[1], a[4] + this.margin, a[3], a[4] + this.margin, l);
 									this.appendArea(p);
-									this.drawLine(e.type, e.tx, e.ty, g, a[2] - this.margin, l);
+									this.drawLine(e.type, e.tx, e.ty, g, a[4] + this.margin, l);
 									this.appendArea(p)
 								} else {
-									if (e.tx < a[1]) {
-										g = (a[2] + a[4]) / 2;
-										this.drawLine("line", a[1] - this.margin, a[2], a[1] - this.margin, a[4], l);
+									if (e.ty < a[2] - (e.width * 0.2)) {
+										g = (a[1] + a[3]) / 2;
+										this.drawLine("line", a[1], a[2] - this.margin, a[3], a[2] - this.margin, l);
 										this.appendArea(p);
-										this.drawLine(e.type, e.tx, e.ty, a[1] - this.margin, g, l);
+										this.drawLine(e.type, e.tx, e.ty, g, a[2] - this.margin, l);
 										this.appendArea(p)
 									} else {
-										g = (a[2] + a[4]) / 2;
-										this.drawLine("line", a[3] + this.margin, a[2], a[3] + this.margin, a[4], l);
-										this.appendArea(p);
-										this.drawLine(e.type, e.tx, e.ty, a[3] + this.margin, g, l);
-										this.appendArea(p)
+										if (e.tx < a[1]) {
+											g = (a[2] + a[4]) / 2;
+											this.drawLine("line", a[1] - this.margin, a[2], a[1] - this.margin, a[4], l);
+											this.appendArea(p);
+											this.drawLine(e.type, e.tx, e.ty, a[1] - this.margin, g, l);
+											this.appendArea(p)
+										} else {
+											g = (a[2] + a[4]) / 2;
+											this.drawLine("line", a[3] + this.margin, a[2], a[3] + this.margin, a[4], l);
+											this.appendArea(p);
+											this.drawLine(e.type, e.tx, e.ty, a[3] + this.margin, g, l);
+											this.appendArea(p)
+										}
 									}
 								}
 							}
@@ -17803,12 +17969,7 @@ CanvasXpress.prototype.initSortUtils = function() {
 		}
 	};
 	this.isAsciiArray = function(a) {
-		for (var b = 0; b < a.length; b++) {
-			if (a[b] != null && isNaN(a[b])) {
-				return true
-			}
-		}
-		return false
+		return !this.isNumeric(a)
 	};
 	this.sortAsciibetically = function(d, c) {
 		var e = this;
@@ -17881,16 +18042,13 @@ CanvasXpress.prototype.initSortUtils = function() {
 		}
 		return d
 	};
-	this.sortObject = function(c) {
-		var a = [];
-		for (var b in c) {
-			a.push(b)
-		}
+	this.sortObject = function(b) {
+		var a = Object.keys(b);
 		if (this.isAsciiArray(a)) {
 			return a.sort()
 		} else {
-			return a.sort(function(e, d) {
-				return e - d
+			return a.sort(function(d, c) {
+				return d - c
 			})
 		}
 	};
@@ -18132,6 +18290,18 @@ CanvasXpress.prototype.initMathUtils = function() {
 			m.push(d(g))
 		}
 		return f ? m : m.reverse()
+	};
+	this.traceBezierCurve = function(j, h, c, b, l, k, g, f, a, d) {
+		var m = [];
+		for (var e = 0; e <= 1; e += a) {
+			m.push(this.deCasteljau([
+				[j, h],
+				[c, b],
+				[l, k],
+				[g, f]
+			], e))
+		}
+		return d ? m : m.reverse()
 	};
 	this.splineControlPoint = function(e, m, d, l, c, k) {
 		var n = Math.sqrt(Math.pow(d - e, 2) + Math.pow(l - m, 2));
@@ -18659,11 +18829,7 @@ CanvasXpress.prototype.initMathUtils = function() {
 			return a ? [NaN, NaN, NaN] : NaN
 		} else {
 			if (b == 1) {
-				if (this.standardDeviationType == "unbiased") {
-					return a ? [e[0], NaN, 1] : 0
-				} else {
-					return a ? [e[0], 0, 1] : 0
-				}
+				return a ? [e[0], 0, 1] : 0
 			} else {
 				var j = this.mean(e);
 				var h = 0;
@@ -19268,6 +19434,561 @@ CanvasXpress.prototype.initMathUtils = function() {
 		var b = this.cloneObject(a);
 		b.shift();
 		return this.centroid(b)
+	};
+	this.getD3Sankey = function() {
+		var h = function(D, C) {
+			return D < C ? -1 : D > C ? 1 : D >= C ? 0 : NaN
+		};
+		var f = function(H, F) {
+			var E = 0,
+				G = H.length,
+				C, D = -1;
+			if (F == null) {
+				while (++D < G) {
+					if (C = +H[D]) {
+						E += C
+					}
+				}
+			} else {
+				while (++D < G) {
+					if (C = +F(H[D], D, H)) {
+						E += C
+					}
+				}
+			}
+			return E
+		};
+		var t = function(H, F) {
+			var E = -1,
+				G = H.length,
+				D, C;
+			if (F == null) {
+				while (++E < G) {
+					if ((C = H[E]) != null && C >= C) {
+						D = C;
+						break
+					}
+				}
+				while (++E < G) {
+					if ((C = H[E]) != null && D > C) {
+						D = C
+					}
+				}
+			} else {
+				while (++E < G) {
+					if ((C = F(H[E], E, H)) != null && C >= C) {
+						D = C;
+						break
+					}
+				}
+				while (++E < G) {
+					if ((C = F(H[E], E, H)) != null && D > C) {
+						D = C
+					}
+				}
+			}
+			return D
+		};
+		var x = function(D, C) {
+			return D = +D, C -= D,
+				function(E) {
+					return D + C * E
+				}
+		};
+		var v = "$";
+
+		function j() {}
+		j.prototype = A.prototype = {
+			constructor: j,
+			has: function(C) {
+				return (v + C) in this
+			},
+			get: function(C) {
+				return this[v + C]
+			},
+			set: function(C, D) {
+				this[v + C] = D;
+				return this
+			},
+			remove: function(C) {
+				var D = v + C;
+				return D in this && delete this[D]
+			},
+			clear: function() {
+				for (var C in this) {
+					if (C[0] === v) {
+						delete this[C]
+					}
+				}
+			},
+			keys: function() {
+				var C = [];
+				for (var D in this) {
+					if (D[0] === v) {
+						C.push(D.slice(1))
+					}
+				}
+				return C
+			},
+			values: function() {
+				var C = [];
+				for (var D in this) {
+					if (D[0] === v) {
+						C.push(this[D])
+					}
+				}
+				return C
+			},
+			entries: function() {
+				var C = [];
+				for (var D in this) {
+					if (D[0] === v) {
+						C.push({
+							key: D.slice(1),
+							value: this[D]
+						})
+					}
+				}
+				return C
+			},
+			size: function() {
+				var C = 0;
+				for (var D in this) {
+					if (D[0] === v) {
+						++C
+					}
+				}
+				return C
+			},
+			empty: function() {
+				for (var C in this) {
+					if (C[0] === v) {
+						return false
+					}
+				}
+				return true
+			},
+			each: function(D) {
+				for (var C in this) {
+					if (C[0] === v) {
+						D(this[C], C.slice(1), this)
+					}
+				}
+			}
+		};
+
+		function A(C, F) {
+			var G = new j;
+			if (C instanceof j) {
+				C.each(function(K, J) {
+					G.set(J, K)
+				})
+			} else {
+				if (Array.isArray(C)) {
+					var E = -1,
+						I = C.length,
+						H;
+					if (F == null) {
+						while (++E < I) {
+							G.set(E, C[E])
+						}
+					} else {
+						while (++E < I) {
+							G.set(F(H = C[E], E, C), H)
+						}
+					}
+				} else {
+					if (C) {
+						for (var D in C) {
+							G.set(D, C[D])
+						}
+					}
+				}
+			}
+			return G
+		}
+		var z = function() {
+			var G = [],
+				I = [],
+				F, H, E;
+
+			function D(P, N, L, Q) {
+				if (N >= G.length) {
+					return H != null ? H(P) : (F != null ? P.sort(F) : P)
+				}
+				var O = -1,
+					J = P.length,
+					T = G[N++],
+					M, R, K = A(),
+					S, U = L();
+				while (++O < J) {
+					if (S = K.get(M = T(R = P[O]) + "")) {
+						S.push(R)
+					} else {
+						K.set(M, [R])
+					}
+				}
+				K.each(function(V, W) {
+					Q(U, W, D(V, N, L, Q))
+				});
+				return U
+			}
+
+			function C(K, L) {
+				if (++L > G.length) {
+					return K
+				}
+				var M, J = I[L - 1];
+				if (H != null && L >= G.length) {
+					M = K.entries()
+				} else {
+					M = [], K.each(function(O, N) {
+						M.push({
+							key: N,
+							values: C(O, L)
+						})
+					})
+				}
+				return J != null ? M.sort(function(O, N) {
+					return J(O.key, N.key)
+				}) : M
+			}
+			return E = {
+				object: function(J) {
+					return D(J, 0, r, o)
+				},
+				map: function(J) {
+					return D(J, 0, s, B)
+				},
+				entries: function(J) {
+					return C(D(J, 0, s, B), 0)
+				},
+				key: function(J) {
+					G.push(J);
+					return E
+				},
+				sortKeys: function(J) {
+					I[G.length - 1] = J;
+					return E
+				},
+				sortValues: function(J) {
+					F = J;
+					return E
+				},
+				rollup: function(J) {
+					H = J;
+					return E
+				}
+			}
+		};
+
+		function r() {
+			return {}
+		}
+
+		function o(C, D, E) {
+			C[D] = E
+		}
+
+		function s() {
+			return A()
+		}
+
+		function B(E, C, D) {
+			E.set(C, D)
+		}
+		var l = {};
+		var e = 12;
+		var i = 5;
+		var m = [1, 1];
+		var p = [];
+		var d = [];
+		l.nodeWidth = function(C) {
+			if (!arguments.length) {
+				return e
+			}
+			e = +C;
+			return l
+		};
+		l.nodePadding = function(C) {
+			if (!arguments.length) {
+				return i
+			}
+			i = +C;
+			return l
+		};
+		l.nodes = function(C) {
+			if (!arguments.length) {
+				return p
+			}
+			p = C;
+			return l
+		};
+		l.links = function(C) {
+			if (!arguments.length) {
+				return d
+			}
+			d = C;
+			return l
+		};
+		l.size = function(C) {
+			if (!arguments.length) {
+				return m
+			}
+			m = C;
+			return l
+		};
+		l.layout = function(C) {
+			c();
+			k();
+			a();
+			g(C);
+			b();
+			u();
+			return l
+		};
+		l.relayout = function() {
+			b();
+			return l
+		};
+		l.link = function() {
+			var D = 0.5;
+
+			function C(L) {
+				var I = L.source.x + L.source.dx,
+					H = L.target.x,
+					G = x(I, H),
+					F = G(D),
+					E = G(1 - D),
+					K = L.source.y + L.sy + L.dy / 2,
+					J = L.target.y + L.ty + L.dy / 2;
+				return "M" + I + "," + K + "C" + F + "," + K + " " + E + "," + J + " " + H + "," + J
+			}
+			C.curvature = function(E) {
+				if (!arguments.length) {
+					return D
+				}
+				D = +E;
+				return C
+			};
+			return C
+		};
+
+		function u() {
+			var C = 0.5;
+			d.forEach(function(K) {
+				var H = K.source.x + K.source.dx,
+					G = K.target.x,
+					F = x(H, G),
+					E = F(C),
+					D = F(1 - C),
+					J = K.source.y + K.sy + K.dy / 2,
+					I = K.target.y + K.ty + K.dy / 2;
+				K.bezier = [
+					[H, E, D, G],
+					[J, J, I, I]
+				]
+			})
+		}
+
+		function c() {
+			p.forEach(function(C) {
+				C.sourceLinks = [];
+				C.targetLinks = []
+			});
+			d.forEach(function(C) {
+				var D = C.source,
+					E = C.target;
+				if (typeof D === "number") {
+					D = C.source = p[C.source]
+				}
+				if (typeof E === "number") {
+					E = C.target = p[C.target]
+				}
+				D.sourceLinks.push(C);
+				E.targetLinks.push(C)
+			})
+		}
+
+		function k() {
+			p.forEach(function(C) {
+				C.value = Math.max(f(C.sourceLinks, q), f(C.targetLinks, q))
+			})
+		}
+
+		function a() {
+			var D = p,
+				E, C = 0;
+			while (D.length) {
+				E = [];
+				D.forEach(function(F) {
+					F.x = C;
+					F.breadth = C;
+					F.dx = e;
+					F.sourceLinks.forEach(function(G) {
+						E.push(G.target)
+					})
+				});
+				D = E;
+				++C
+			}
+			w(C);
+			n((m[0] - e) / (C - 1))
+		}
+
+		function w(C) {
+			p.forEach(function(D) {
+				if (!D.sourceLinks.length) {
+					D.x = C - 1
+				}
+			})
+		}
+
+		function n(C) {
+			p.forEach(function(D) {
+				D.x *= C
+			})
+		}
+
+		function g(H) {
+			var C = z().key(function(K) {
+				return K.x
+			}).sortKeys(h).entries(p).map(function(K) {
+				return K.values
+			});
+			F();
+			J();
+			for (var I = 1; H > 0; --H) {
+				D(I *= 0.99);
+				J();
+				E(I);
+				J()
+			}
+
+			function F() {
+				var K = t(C, function(L) {
+					return (m[1] - (L.length - 1) * i) / f(L, q)
+				});
+				C.forEach(function(L) {
+					L.forEach(function(N, M) {
+						N.y = M;
+						N.dy = N.value * K
+					})
+				});
+				d.forEach(function(L) {
+					L.dy = L.value * K
+				})
+			}
+
+			function E(L) {
+				C.forEach(function(M, N) {
+					M.forEach(function(O) {
+						if (O.targetLinks.length) {
+							var P = f(O.targetLinks, K) / f(O.targetLinks, q);
+							O.y += (P - y(O)) * L
+						}
+					})
+				});
+
+				function K(M) {
+					return y(M.source) * M.value
+				}
+			}
+
+			function D(L) {
+				C.slice().reverse().forEach(function(M) {
+					M.forEach(function(N) {
+						if (N.sourceLinks.length) {
+							var O = f(N.sourceLinks, K) / f(N.sourceLinks, q);
+							N.y += (O - y(N)) * L
+						}
+					})
+				});
+
+				function K(M) {
+					return y(M.target) * M.value
+				}
+			}
+
+			function J() {
+				C.forEach(function(L) {
+					var O, K, N = 0,
+						P = L.length,
+						M;
+					L.sort(G);
+					for (M = 0; M < P; ++M) {
+						O = L[M];
+						K = N - O.y;
+						if (K > 0) {
+							O.y += K
+						}
+						N = O.y + O.dy + i
+					}
+					K = N - i - m[1];
+					if (K > 0) {
+						N = O.y -= K;
+						for (M = P - 2; M >= 0; --M) {
+							O = L[M];
+							K = O.y + O.dy + i - N;
+							if (K > 0) {
+								O.y -= K
+							}
+							N = O.y
+						}
+					}
+				})
+			}
+
+			function G(L, K) {
+				return L.y - K.y
+			}
+		}
+
+		function b() {
+			p.forEach(function(E) {
+				E.sourceLinks.sort(C);
+				E.targetLinks.sort(D)
+			});
+			p.forEach(function(F) {
+				var G = 0,
+					E = 0;
+				F.sourceLinks.forEach(function(H) {
+					H.sy = G;
+					G += H.dy
+				});
+				F.targetLinks.forEach(function(H) {
+					H.ty = E;
+					E += H.dy
+				})
+			});
+
+			function D(F, E) {
+				return F.source.y - E.source.y
+			}
+
+			function C(F, E) {
+				return F.target.y - E.target.y
+			}
+		}
+
+		function y(C) {
+			return C.y + C.dy / 2
+		}
+
+		function q(C) {
+			return C.value
+		}
+		return l
+	};
+	this.setSankey = function() {
+		var a = this.getD3Sankey();
+		a.nodeWidth(this.sankeyNodeWidth);
+		a.nodePadding(this.margin);
+		a.size([this.x, this.y]);
+		a.nodes(this.data.sankey.nodes);
+		a.links(this.data.sankey.links);
+		a.layout(this.sankeyIterations);
+		this.data.sankey.object = a
 	}
 };
 CanvasXpress.prototype.initLayout = function() {
@@ -22698,8 +23419,8 @@ CanvasXpress.prototype.initMenus = function() {
 				g.push([b[c], a[b[c]] ? "checked" : "unchecked", "showTreemapGroups", [b[c]]])
 			}
 		} else {
-			if (this.graphType != "Line") {
-				var e = this.graphType.match(/scatter|parallelcoordinates/i) ? this.sortObject(this.data.z) : this.sortObject(this.data.x);
+			if (this.graphType != "Line" && this.graphType != "ParallelCoordinates") {
+				var e = this.graphType.match(/scatter/i) ? this.sortObject(this.data.z) : this.sortObject(this.data.x);
 				for (var c = 0; c < e.length; c++) {
 					g.push([e[c], e[c] == this[f] ? "radioOn" : "radioOff", "changeAttribute", [f, e[c]]])
 				}
@@ -22804,6 +23525,7 @@ CanvasXpress.prototype.initMenus = function() {
 		a.push(["Stacked Percent Line", "stackedPercentLine", "changeAttribute", ["graphType", "StackedPercentLine"], "Shit + Alt + W"]);
 		a.push(["Tag Cloud", "tagCloud", "changeAttribute", ["graphType", "TagCloud"]]);
 		a.push(["Parallel Coordinates", "line", "changeAttribute", ["graphType", "ParallelCoordinates"]]);
+		a.push(["Sankey", "network", "changeAttribute", ["graphType", "Sankey"]]);
 		a.push(["Treemap", "treemap", "changeAttribute", ["graphType", "Treemap"]]);
 		return a
 	};
@@ -23485,7 +24207,7 @@ CanvasXpress.prototype.initMenus = function() {
 		a.push(["Show JSON code", "purpleCode", "clickShowCode", []]);
 		a.push(["Reproduce", "redo", "reproduce", [], "Ctrl + Alt + R"]);
 		if (this.remoteService && this.remoteServiceType == "webService") {
-			a.push(["Save parameters to server", "disk", "saveRemote", ["params"]]);
+			a.push(["Save customizations to server", "disk", "saveRemote", ["afterRender"]]);
 			a.push(["Clear parameters from server", "deleteSaved", "clearRemote", []])
 		}
 		a.push(["-"]);
@@ -23523,6 +24245,7 @@ CanvasXpress.prototype.initMenus = function() {
 			Treemap: true,
 			TagCloud: true,
 			ParallelCoordinates: true,
+			Sankey: true,
 			Stacked: true,
 			StackedLine: true,
 			StackedPercent: true,
@@ -24043,38 +24766,41 @@ CanvasXpress.prototype.initTooltip = function() {
 			}
 		}
 	};
-	this.flashInfoSpan = function(j, i, n, b) {
-		var f = this;
-		if (b) {
+	this.flashInfoSpan = function(l, k, o, d, a) {
+		var g = this;
+		if (d) {
 			this.noInfoSpanReset = true
 		}
-		var o = new Date().getTime() - this.infoStartTime;
-		var q = this.$(this.target + "-cX-Info");
-		var g = this.$(this.target);
-		var a = g.getClientRects();
-		if (q) {
-			q.innerHTML = n;
-			q.style.display = "block";
-			var m = parseInt(q.clientWidth);
-			var e = parseInt(q.clientHeight);
-			var d = document.body.scrollLeft + a[0].left;
-			var o = document.body.scrollTop + a[0].top;
-			q.style.left = (d + (j || 0)) + "px";
-			q.style.top = (o + (i || 0)) + "px";
-			if (b) {
+		var q = new Date().getTime() - this.infoStartTime;
+		var r = this.$(this.target + "-cX-Info");
+		var j = this.$(this.target);
+		var b = j.getClientRects();
+		if (r) {
+			r.innerHTML = o;
+			r.style.display = "block";
+			var n = parseInt(r.clientWidth);
+			var f = parseInt(r.clientHeight);
+			r.style.left = (l || 0) + "px";
+			r.style.top = (k || 0) + "px";
+			if (a) {
+				for (var e in a) {
+					r.style[e] = a[e]
+				}
+			}
+			if (d) {
 				this.noInfoSpanReset = true;
-				var k = function() {
+				var m = function() {
 					this.update = function() {
 						var c = new Date().getTime();
-						if (c - f.infoStartTime > b) {
-							f.noInfoSpanReset = false;
-							f.resetInfoSpan();
+						if (c - g.infoStartTime > d) {
+							g.noInfoSpanReset = false;
+							g.resetInfoSpan();
 							clearInterval(h)
 						}
 					};
-					var h = setInterval(this.update, b)
+					var h = setInterval(this.update, d)
 				};
-				k.call()
+				m.call()
 			}
 		}
 	};
@@ -24128,224 +24854,265 @@ CanvasXpress.prototype.initTooltip = function() {
 			}
 		}
 	};
-	this.addMarkerConfigurator = function(M, E) {
-		var u = this.$("center-wrapper-" + this.target);
-		if (u) {
-			var C = this.target + "-cX-Marker";
-			if (this.$(C)) {
-				this.closeMarkerConfigurator(false, this.$(C))
+	this.addMarkerConfigurator = function(Q, H) {
+		var y = this.$("center-wrapper-" + this.target);
+		if (y) {
+			var F = this.target + "-cX-Marker";
+			if (this.$(F)) {
+				this.closeMarkerConfigurator(false, this.$(F))
 			}
-			var L = M.target || M.srcElement;
-			var B = L.parentNode;
-			var N = this.adjustedCoordinates(M);
-			var x = E.y ? E.y.vars : E.w.vars;
-			var A = E.y ? E.y.smps : E.w.smps;
-			var h = this.graphType.match(/Treemap|Stacked/) ? true : false;
-			var F = {};
-			var y = {
+			var O = Q.target || Q.srcElement;
+			var D = O.parentNode;
+			var R = this.adjustedCoordinates(Q);
+			var z = H.y ? H.y.vars : H.w.vars;
+			var C = H.y ? H.y.smps : H.w.smps;
+			var k = this.graphType.match(/Treemap|Stacked/) ? true : false;
+			var I = {};
+			var E = false;
+			var A = {
 				id: this.newId(this.target + "-marker-"),
-				vi: this.getVariableIndices(x),
-				si: this.getSampleIndices(A, h),
-				variable: x,
-				sample: A,
+				vi: this.getVariableIndices(z),
+				si: this.getSampleIndices(C, k),
+				variable: z,
+				sample: C,
 				update: false
 			};
-			var I = false;
-			var D = ["text", "color", "fontSize", "fontStyle", "align", "baseline", "x", "y"];
-			for (var K = 0; K < D.length; K++) {
-				F[D[K]] = ""
+			var L = false;
+			var G = ["text", "color", "fontSize", "fontStyle", "align", "baseline", "type", "x", "y"];
+			for (var N = 0; N < G.length; N++) {
+				I[G[N]] = ""
 			}
-			F.align = "center";
-			F.baseline = "middle";
+			I.align = "center";
+			I.baseline = "middle";
+			I.type = "line";
 			if (this.data.d && this.data.d.marker) {
-				for (var K = 0; K < this.data.d.marker.length; K++) {
-					var G = this.data.d.marker[K];
-					if (this.isSameObject(G.variable) == this.isSameObject(x) && this.isSameObject(G.sample) == this.isSameObject(A)) {
-						for (var J = 0; J < D.length; J++) {
-							F[D[J]] = G[D[J]]
+				for (var N = 0; N < this.data.d.marker.length; N++) {
+					var J = this.data.d.marker[N];
+					if (this.isSameObject(J.variable, z) && this.isSameObject(J.sample, C)) {
+						for (var M = 0; M < G.length; M++) {
+							I[G[M]] = J[G[M]]
 						}
-						I = true;
-						y.update = true
+						L = true;
+						A.update = true
 					}
 				}
 			}
-			var z = this.$cX("div", {
-				id: C,
+			var B = this.$cX("div", {
+				id: F,
 				className: "CanvasXpressMarker draggable",
-				par: B.id,
-				obj: y
+				par: D.id,
+				obj: A
 			}, {
-				left: N.x + "px",
-				top: (N.y - this.height) + "px",
+				left: R.x + "px",
+				top: (R.y - this.height) + "px",
 				display: "block",
 				position: "relative"
 			});
 			var c = this.$cX("img", {
-				id: C + "ConfiguratorMarkerClose",
+				id: F + "ConfiguratorMarkerClose",
 				className: "CanvasXpressDataTableToolbarImage",
 				src: CanvasXpress.images.cancel1,
 				alt: "Close",
 				title: "Close"
 			});
 			var f = this.$cX("div", {
-				id: C + "Container",
+				id: F + "Container",
 				className: "CanvasXpressDataTableContainer"
 			}, {
 				left: "12px"
 			});
 			var d = this.$cX("table", {
-				id: C + "MarkerTable",
+				id: F + "MarkerTable",
 				className: "CanvasXpressDataTable"
 			});
 			var a = this.$cX("tbody");
-			for (var K = 0; K < D.length; K++) {
+			for (var N = 0; N < G.length; N++) {
 				var b = this.$cX("tr");
-				var l = this.$cX("th", {
+				var q = this.$cX("th", {
 					className: "CanvasXpressTableCellHead"
 				}, {
-					height: D[K] == "text" ? "64px" : "18px",
+					height: G[N] == "text" ? "64px" : "18px",
 					width: "80px",
 					backgroundRepeat: "repeat"
 				});
-				var k = this.$cX("div", {
+				var l = this.$cX("div", {
 					className: "CanvasXpressTableCell",
-					innerHTML: this.capitalize(D[K])
+					innerHTML: this.capitalize(G[N])
 				}, {
-					height: D[K] == "text" ? "64px" : "18px",
+					height: G[N] == "text" ? "64px" : "18px",
 					width: "80px"
 				});
-				var t = this.$cX("td", {
+				var u = this.$cX("td", {
 					className: "CanvasXpressTableCell"
 				}, {
-					height: D[K] == "text" ? "64px" : "18px",
+					height: G[N] == "text" ? "64px" : "18px",
 					width: "160px",
 					border: "1px solid #ccc"
 				});
-				var r = this.$cX("div", {
+				var t = this.$cX("div", {
 					className: "CanvasXpressTableCell"
 				}, {
-					height: D[K] == "text" ? "64px" : "18px",
+					height: G[N] == "text" ? "64px" : "18px",
 					width: "160px"
 				});
-				var g;
-				if (D[K] == "text") {
-					g = this.$cX("textarea", {
-						id: C + "ConfiguratorMarker-" + D[K],
+				var h;
+				if (G[N] == "text") {
+					h = this.$cX("textarea", {
+						id: F + "ConfiguratorMarker-" + G[N],
 						className: "CanvasXpressMarker",
-						name: D[K],
-						value: F[D[K]],
+						name: G[N],
+						value: I[G[N]],
 						rows: 3
 					}, {
 						width: "100%",
 						border: "none"
 					})
 				} else {
-					if (D[K] == "color") {
-						g = this.$cX("input", {
-							id: C + "ConfiguratorMarker-" + D[K],
+					if (G[N] == "color") {
+						h = this.$cX("input", {
+							id: F + "ConfiguratorMarker-" + G[N],
 							className: "CanvasXpressMarker",
 							type: "color",
-							name: D[K],
-							value: F[D[K]] || ""
+							name: G[N],
+							value: I[G[N]] ? this.validateColor(I[G[N]], null, true) : ""
 						}, {
 							width: "100%",
 							border: "none"
 						})
 					} else {
-						if (D[K] == "x" || D[K] == "y") {
-							g = this.$cX("input", {
-								id: C + "ConfiguratorMarker-" + D[K],
+						if (G[N] == "type") {
+							h = this.$cX("select", {
+								id: F + "ConfiguratorMarker-" + G[N],
 								className: "CanvasXpressMarker",
-								type: "number",
-								name: D[K],
-								value: F[D[K]] ? sprintf("%.2f", Number(F[D[K]])) : 0,
-								min: 0,
-								max: 1,
-								step: 0.01
+								size: 1
 							}, {
 								width: "100%",
-								border: "none"
-							})
+								border: "none",
+								backgroundColor: "white"
+							});
+							var x = this.$cX("option", {
+								text: "line",
+								value: "line"
+							});
+							try {
+								h.add(x, null)
+							} catch (P) {
+								h.add(x)
+							}
+							var g = this.$cX("option", {
+								text: "annotation",
+								value: "annotation"
+							});
+							try {
+								h.add(g, null)
+							} catch (P) {
+								h.add(g)
+							}
+							if (I[G[N]] && I[G[N]] != "line") {
+								h.options[1].selected = true;
+								E = true
+							}
 						} else {
-							if (D[K].match(/fontSize/)) {
-								g = this.$cX("input", {
-									id: C + "ConfiguratorMarker-" + D[K],
+							if (G[N] == "x" || G[N] == "y") {
+								h = this.$cX("input", {
+									id: F + "ConfiguratorMarker-" + G[N],
 									className: "CanvasXpressMarker",
 									type: "number",
-									name: D[K],
-									value: F[D[K]] || 12
+									name: G[N],
+									value: I[G[N]] ? sprintf("%.2f", Number(I[G[N]])) : 0,
+									min: 0,
+									max: 1,
+									step: 0.01
 								}, {
 									width: "100%",
 									border: "none"
-								})
+								});
+								if (E) {
+									h.disabled = true
+								}
 							} else {
-								g = this.$cX("input", {
-									id: C + "ConfiguratorMarker-" + D[K],
-									className: "CanvasXpressMarker",
-									type: "text",
-									name: D[K],
-									value: F[D[K]] || ""
-								}, {
-									width: "100%",
-									border: "none"
-								})
+								if (G[N].match(/fontSize/)) {
+									h = this.$cX("input", {
+										id: F + "ConfiguratorMarker-" + G[N],
+										className: "CanvasXpressMarker",
+										type: "number",
+										name: G[N],
+										value: I[G[N]] || 12
+									}, {
+										width: "100%",
+										border: "none"
+									})
+								} else {
+									h = this.$cX("input", {
+										id: F + "ConfiguratorMarker-" + G[N],
+										className: "CanvasXpressMarker",
+										type: "text",
+										name: G[N],
+										value: I[G[N]] || ""
+									}, {
+										width: "100%",
+										border: "none"
+									})
+								}
 							}
 						}
 					}
 				}
-				var q = this.$cX("input", {
-					id: C + "ConfiguratorMarkerRemove",
+				var r = this.$cX("input", {
+					id: F + "ConfiguratorMarkerRemove",
 					value: "Remove",
 					type: "button"
 				}, {
 					cssFloat: "left",
 					borderRadius: "5px",
 					position: "relative",
-					top: "285px",
+					top: "308px",
 					left: "12px",
 					width: "125px",
 					height: "24px"
 				});
-				var H = this.$cX("input", {
-					id: C + "ConfiguratorMarkerAdd",
-					value: I ? "Update" : "Add",
+				var K = this.$cX("input", {
+					id: F + "ConfiguratorMarkerAdd",
+					value: L ? "Update" : "Add",
 					type: "button"
 				}, {
 					cssFloat: "left",
 					borderRadius: "5px",
 					position: "relative",
-					top: "285px",
+					top: "308px",
 					left: "24px",
 					width: "125px",
 					height: "24px"
 				});
-				r.appendChild(g);
-				t.appendChild(r);
-				l.appendChild(k);
-				b.appendChild(l);
-				b.appendChild(t);
+				t.appendChild(h);
+				u.appendChild(t);
+				q.appendChild(l);
+				b.appendChild(q);
+				b.appendChild(u);
 				a.appendChild(b)
 			}
 			d.appendChild(a);
 			f.appendChild(d);
-			z.appendChild(c);
-			z.appendChild(f);
-			z.appendChild(q);
-			z.appendChild(H);
-			u.appendChild(z);
+			B.appendChild(c);
+			B.appendChild(f);
+			B.appendChild(r);
+			B.appendChild(K);
+			y.appendChild(B);
 			this.addRemoveMarkerConfiguratorListeners("addEvtListener")
 		}
 	};
 	this.addRemoveMarkerConfiguratorListeners = function(e) {
 		var b = this.$(this.target + "-cX-Marker");
-		var g = this.$(this.target + "-cX-MarkerConfiguratorMarkerClose");
-		var f = this.$(this.target + "-cX-MarkerConfiguratorMarkerRemove");
+		var h = this.$(this.target + "-cX-MarkerConfiguratorMarkerClose");
+		var g = this.$(this.target + "-cX-MarkerConfiguratorMarkerRemove");
 		var d = this.$(this.target + "-cX-MarkerConfiguratorMarkerAdd");
-		if (b && g && f && d) {
+		var f = this.$(this.target + "-cX-MarkerConfiguratorMarker-type");
+		if (b && h && g && d && f) {
 			this[e](b, "mousedown", this.registerMousemove, false);
-			this[e](g, "click", this.closeMarkerConfigurator, false);
-			this[e](f, "click", this.removeMarker, false);
-			this[e](d, "click", this.addMarker, false)
+			this[e](h, "click", this.closeMarkerConfigurator, false);
+			this[e](g, "click", this.removeMarker, false);
+			this[e](d, "click", this.addMarker, false);
+			this[e](f, "change", this.changeTypeMarker, false)
 		}
 	};
 	this.closeMarkerConfigurator = function(a) {
@@ -24380,8 +25147,19 @@ CanvasXpress.prototype.initTooltip = function() {
 			return false
 		}
 	}(this);
+	this.changeTypeMarker = function(a) {
+		return function(d) {
+			var c = d.target || d.srcElement;
+			var f = this.value;
+			var b = c.parentNode.parentNode.parentNode.nextElementSibling;
+			var g = b.nextElementSibling;
+			b.childNodes[1].childNodes[0].childNodes[0].disabled = f == "line" ? false : true;
+			g.childNodes[1].childNodes[0].childNodes[0].disabled = f == "line" ? false : true;
+			return false
+		}
+	}(this);
 	this.modifyMarker = function(e, a) {
-		var d = ["text", "color", "fontSize", "fontStyle", "align", "baseline", "x", "y"];
+		var d = ["text", "color", "fontSize", "fontStyle", "align", "baseline", "type", "x", "y"];
 		for (var b = 0; b < d.length; b++) {
 			var c = this.$(this.target + "-cX-MarkerConfiguratorMarker-" + d[b]);
 			if (c) {
@@ -24395,9 +25173,9 @@ CanvasXpress.prototype.initTooltip = function() {
 		if (b) {
 			if (e.update) {
 				var d = [];
-				for (var c = 0; c < this.data.d.markerlength; c++) {
+				for (var c = 0; c < this.data.d.marker.length; c++) {
 					var a = this.data.d.marker[c];
-					if (this.isSameObject(a.variable) == this.isSameObject(e.variable) && this.isSameObject(a.sample) == this.isSameObject(e.sample)) {
+					if (this.isSameObject(a.variable, e.variable) && this.isSameObject(a.sample, e.sample)) {
 						continue
 					}
 					d.push(a)
@@ -24410,7 +25188,7 @@ CanvasXpress.prototype.initTooltip = function() {
 			if (e.update) {
 				for (var c = 0; c < this.data.d.marker.length; c++) {
 					var a = this.data.d.marker[c];
-					if (this.isSameObject(a.variable) == this.isSameObject(e.variable) && this.isSameObject(a.sample) == this.isSameObject(e.sample)) {
+					if (this.isSameObject(a.variable, e.variable) && this.isSameObject(a.sample, e.sample)) {
 						a.text = e.text;
 						a.color = e.color;
 						a.fontSize = Number(e.fontSize);
@@ -24420,7 +25198,8 @@ CanvasXpress.prototype.initTooltip = function() {
 						a.align = e.align;
 						a.baseline = e.baseline;
 						a.x = Number(e.x);
-						a.y = Number(a.y);
+						a.y = Number(e.y);
+						a.type = e.type;
 						break
 					}
 				}
@@ -24444,7 +25223,7 @@ CanvasXpress.prototype.initTooltip = function() {
 					baseline: e.baseline,
 					x: Number(e.x),
 					y: Number(e.y),
-					type: "line"
+					type: e.type
 				})
 			}
 		}
@@ -34678,45 +35457,54 @@ CanvasXpress.prototype.initDraggingEvents = function() {
 			}
 		}
 	};
-	this.setRangesAfterWheelEvent = function(h, i) {
+	this.setRangesAfterWheelEvent = function(i, k) {
 		this.functionCaller = "setRangesAfterWheelEvent";
-		var c = this.getActiveLayoutIndicesMetadata(h);
+		var c = this.getActiveLayoutIndicesMetadata(i);
 		if (c) {
-			var l = this.layoutComb ? this.layoutParams[c.idx] : this;
-			var j = c.ac.x > (this.marginLeft + l.offsetX + l.left) && c.ac.x < (this.marginLeft + l.offsetX + l.left + l.x);
-			var f = c.ac.y > (this.marginTop + l.offsetY + l.top) && c.ac.y < (this.marginTop + l.offsetY + l.top + l.y);
-			var b = l.xAxisRange * this.zoomStep * c.lcx;
-			var a = l.yAxisRange * this.zoomStep * c.lcy;
-			var k = l.xAxisRange * this.zoomStep * (1 - c.lcx);
-			var g = l.yAxisRange * this.zoomStep * (1 - c.lcy);
-			if (i > 0) {
-				if (j) {
-					this.setMinX = l.setMinX != null ? l.setMinX + b : l.xAxisMin + b;
-					this.setMaxX = l.setMaxX != null ? l.setMaxX - k : l.xAxisMax - k
+			var p, j, n, h;
+			var q = this.layoutComb ? this.layoutParams[c.idx] : this;
+			var l = c.ac.x > (this.marginLeft + q.offsetX + q.left) && c.ac.x < (this.marginLeft + q.offsetX + q.left + q.x);
+			var f = c.ac.y > (this.marginTop + q.offsetY + q.top) && c.ac.y < (this.marginTop + q.offsetY + q.top + q.y);
+			var b = q.xAxisRange * this.zoomStep * c.lcx;
+			var a = q.yAxisRange * this.zoomStep * c.lcy;
+			var o = q.xAxisRange * this.zoomStep * (1 - c.lcx);
+			var g = q.yAxisRange * this.zoomStep * (1 - c.lcy);
+			if (k > 0) {
+				if (l) {
+					p = this.setMinX = q.setMinX != null ? q.setMinX + b : q.xAxisMin + b;
+					j = this.setMaxX = q.setMaxX != null ? q.setMaxX - o : q.xAxisMax - o
 				}
 				if (f && this.graphType != "Genome") {
-					this.setMinY = l.setMinY != null ? l.setMinY + g : l.yAxisMin + g;
-					this.setMaxY = l.setMaxY != null ? l.setMaxY - a : l.yAxisMax - a
+					n = this.setMinY = q.setMinY != null ? q.setMinY + g : q.yAxisMin + g;
+					h = this.setMaxY = q.setMaxY != null ? q.setMaxY - a : q.yAxisMax - a
 				}
 			} else {
-				if (j) {
-					this.setMinX = l.setMinX != null ? l.setMinX - b : l.xAxisMin - b;
-					this.setMaxX = l.setMaxX != null ? l.setMaxX + k : l.xAxisMax + k
+				if (l) {
+					p = this.setMinX = q.setMinX != null ? q.setMinX - b : q.xAxisMin - b;
+					j = this.setMaxX = q.setMaxX != null ? q.setMaxX + o : q.xAxisMax + o
 				}
 				if (f && this.graphType != "Genome") {
-					this.setMinY = l.setMinY != null ? l.setMinY - g : l.yAxisMin - g;
-					this.setMaxY = l.setMaxY != null ? l.setMaxY + a : l.yAxisMax + a
+					n = this.setMinY = q.setMinY != null ? q.setMinY - g : q.yAxisMin - g;
+					h = this.setMaxY = q.setMaxY != null ? q.setMaxY + a : q.yAxisMax + a
 				}
 			}
 			this.isTransformedAxis("xAxis", "X");
 			this.isTransformedAxis("yAxis", "Y");
-			if (this.layoutComb) {
-				l.setMinX = this.setMinX;
-				l.setMaxX = this.setMaxX;
-				l.setMinY = this.setMinY;
-				l.setMaxY = this.setMaxY
+			if (q.setMinX == "Infinity" || q.setMaxX == "Infinity") {
+				this.setMinX = p;
+				this.setMaxX = j
 			}
-			h.ac = {
+			if (q.setMinY == "Infinity" || q.setMaxY == "Infinity") {
+				this.setMinY = n;
+				this.setMaxY = h
+			}
+			if (this.layoutComb) {
+				q.setMinX = this.setMinX;
+				q.setMaxX = this.setMaxX;
+				q.setMinY = this.setMinY;
+				q.setMaxY = this.setMaxY
+			}
+			i.ac = {
 				x: c.ac.x,
 				y: c.ac.y
 			};
@@ -35104,7 +35892,7 @@ CanvasXpress.prototype.initDraggingEvents = function() {
 								if (this.moveMarker) {
 									return false
 								}
-								if (p.match(/Pie|Venn|Stacked|Area|Circular|Treemap|TagCloud|ParallelCoordinates/)) {
+								if (p.match(/Pie|Venn|Stacked|Area|Circular|Treemap|TagCloud|ParallelCoordinates|Sankey/)) {
 									if (this.meta.system.isTouchScreen) {
 										if (k >= u[0] && k <= u[1] && x >= u[2] && x <= u[3] || this.moveGenome) {
 											this.skipClick = false;
@@ -35621,7 +36409,7 @@ CanvasXpress.prototype.initDraggingEvents = function() {
 						this.updateDragMarker(r, n);
 						return false
 					} else {
-						if (w.match(/Pie|Venn|Stacked|Area|Circular|Treemap|TagCloud|ParallelCoordinates/)) {
+						if (w.match(/Pie|Venn|Stacked|Area|Circular|Treemap|TagCloud|ParallelCoordinates|Sankey/)) {
 							if (this.meta.system.isTouchScreen) {
 								this.movingOn = true;
 								this.resetOn = false
@@ -35808,7 +36596,7 @@ CanvasXpress.prototype.initDraggingEvents = function() {
 		this.functionCaller = "endDrag";
 		if (this.draggingOn) {
 			var b = this.layoutComb ? this.layoutParams[this.layoutValidN || 0].graphType : this.graphType;
-			if (b.match(/Venn|Stacked|Area|Treemap|TagCloud|ParallelCoordinates/)) {
+			if (b.match(/Venn|Stacked|Area|Treemap|TagCloud|ParallelCoordinates|Sankey/)) {
 				return false
 			}
 			if (!z) {
@@ -36886,6 +37674,7 @@ CanvasXpress.prototype.initKeyEvents = function() {
 		a += "<tr><td class=k>Y</td><td class=d>Treemap</td></tr>";
 		a += "<tr><td class=k>Z</td><td class=d>TagCloud</td></tr>";
 		a += "<tr><td class=k>J</td><td class=d>ParallelCoordinates</td></tr>";
+		a += "<tr><td class=k>K</td><td class=d>Sankey</td></tr>";
 		a += "</table>";
 		this.showInfoSpan(false, a)
 	};
@@ -37405,6 +38194,10 @@ CanvasXpress.prototype.initKeyEvents = function() {
 																										} else {
 																											if (b == 74) {
 																												a = "ParallelCoordinates"
+																											} else {
+																												if (b == 75) {
+																													a = "Sankey"
+																												}
 																											}
 																										}
 																									}
@@ -37463,6 +38256,7 @@ CanvasXpress.prototype.initKeyEvents = function() {
 			case "Treemap":
 			case "TagCloud":
 			case "ParallelCoordinates":
+			case "Sankey":
 				this.setAllVariablesVisible(false, a);
 				this.setAllSamplesVisible(false, a);
 				break;
@@ -37502,6 +38296,7 @@ CanvasXpress.prototype.initKeyEvents = function() {
 			case "Treemap":
 			case "TagCloud":
 			case "ParallelCoordinates":
+			case "Sankey":
 				this.setAllVariablesVisible();
 				this.setAllSamplesVisible();
 				break;
@@ -38522,6 +39317,7 @@ CanvasXpress.prototype.initCanvasEvents = function() {
 			case "Treemap":
 			case "TagCloud":
 			case "ParallelCoordinates":
+			case "Sankey":
 			case "Pie":
 			case "Circular":
 			case "BarLine":
@@ -38718,8 +39514,13 @@ CanvasXpress.prototype.initCanvasEvents = function() {
 							g[6] = this.foreground;
 							g[9] = 2
 						} else {
-							g[5] = this.addColorTransparency(g[5], 0.7);
-							g[6] = this.foreground
+							if (g[0] == "bezier" && g[8] && this.isArray(g[8])) {
+								g[5] = this.getLinearGradient(0, 0, g[3], 0, g[8][0], g[8][1]);
+								g[6] = this.foreground
+							} else {
+								g[5] = this.addColorTransparency(g[5], 0.7);
+								g[6] = this.foreground
+							}
 						}
 						break;
 					case "drawArcText":
@@ -39297,6 +40098,7 @@ CanvasXpress.prototype.initEvents = function() {
 			case "Treemap":
 			case "TagCloud":
 			case "ParallelCoordinates":
+			case "Sankey":
 				if (!m || m.length == 0 || m[0] == null) {
 					return
 				} else {
@@ -39317,117 +40119,126 @@ CanvasXpress.prototype.initEvents = function() {
 								};
 								return F
 							} else {
-								if (m[0] && m[0].match(/Marker/)) {
+								if (m[0] && m[0].match(/Sankey/)) {
 									var O = m[0].split(":");
 									var F = {
-										id: O[1],
-										display: O[2],
-										objectType: "Marker"
+										display: O[1],
+										objectType: "Sankey"
 									};
 									return F
 								} else {
-									if (m[0] && m[0].match(/Violin/)) {
+									if (m[0] && m[0].match(/Marker/)) {
 										var O = m[0].split(":");
 										var F = {
-											display: O[1],
-											objectType: "Violin"
+											id: O[1],
+											display: O[2],
+											objectType: "Marker"
 										};
 										return F
 									} else {
-										if (m[0] && m[0].match(/Connect/)) {
+										if (m[0] && m[0].match(/Violin/)) {
 											var O = m[0].split(":");
 											var F = {
 												display: O[1],
-												objectType: "Connect"
+												objectType: "Violin"
 											};
 											return F
 										} else {
-											if (m[0] && m[0].match(/Histogram/)) {
-												var D = m[0].split("-");
+											if (m[0] && m[0].match(/Connect/)) {
+												var O = m[0].split(":");
 												var F = {
-													h: {
-														a: D[0],
-														b: D[1],
-														c: D[2],
-														d: D[3]
-													}
+													display: O[1],
+													objectType: "Connect"
 												};
-												F.objectType = "Histogram";
 												return F
 											} else {
-												if (m[0] && m[0].match(/Dendrogram/)) {
-													var F = {
-														t: {}
-													};
+												if (m[0] && m[0].match(/Histogram/)) {
 													var D = m[0].split("-");
-													if (D.length > 1) {
-														F.t.d = parseInt(D[1]);
-														F.t.o = parseInt(D[2]);
-														F.t.t = D[3]
-													} else {
-														F.display = m[0].match(/var/) ? "Variable Dendrogram" : "Sample Dendrogram"
-													}
-													F.objectType = "Dendrogram";
+													var F = {
+														h: {
+															a: D[0],
+															b: D[1],
+															c: D[2],
+															d: D[3]
+														}
+													};
+													F.objectType = "Histogram";
 													return F
 												} else {
-													if (m[0] && m[0].match(/Var/)) {
+													if (m[0] && m[0].match(/Dendrogram/)) {
+														var F = {
+															t: {}
+														};
 														var D = m[0].split("-");
-														var L = parseInt(D[1]);
-														var R = [L];
-														R = R.concat(this.smpIndices);
-														var F = this.extractDataObject(R);
-														if (m[0].match(/VarOvr/)) {
-															F.display = r.y.vars[L] + " : " + this.varOverlays[D[2]] + " : " + r.z[this.varOverlays[D[2]]][L];
-															F.objectType = "VarOverlay"
+														if (D.length > 1) {
+															F.t.d = parseInt(D[1]);
+															F.t.o = parseInt(D[2]);
+															F.t.t = D[3]
 														} else {
-															if (m[0].match(/VarOverlay/)) {
-																F.display = this.varOverlays[D[1]];
-																F.objectType = "VarOverlay"
-															} else {
-																F.display = r.y.vars[L];
-																F.objectType = "Var"
-															}
+															F.display = m[0].match(/var/) ? "Variable Dendrogram" : "Sample Dendrogram"
 														}
+														F.objectType = "Dendrogram";
 														return F
 													} else {
-														if (m[0] && m[0].match(/Smp/)) {
+														if (m[0] && m[0].match(/Var/)) {
 															var D = m[0].split("-");
 															var L = parseInt(D[1]);
-															var F = this.extractDataObject([L], this.varIndices);
-															if (m[0].match(/SmpOvrSgr/)) {
-																F.display = this.smpOverlays[D[1]] + " : " + D[2];
-																F.objectType = "SmpOverlaySgr"
+															var R = [L];
+															R = R.concat(this.smpIndices);
+															var F = this.extractDataObject(R);
+															if (m[0].match(/VarOvr/)) {
+																F.display = r.y.vars[L] + " : " + this.varOverlays[D[2]] + " : " + r.z[this.varOverlays[D[2]]][L];
+																F.objectType = "VarOverlay"
 															} else {
-																if (m[0].match(/SmpOvr/)) {
-																	F.display = this.isGroupedData ? r.w.smps[L] + " : " + this.smpOverlays[D[2]] + " : " + r.w.factors[this.smpOverlays[D[2]]][L] : r.y.smps[L] + " : " + this.smpOverlays[D[2]] + " : " + r.x[this.smpOverlays[D[2]]][L];
-																	F.objectType = "SmpOverlay"
+																if (m[0].match(/VarOverlay/)) {
+																	F.display = this.varOverlays[D[1]];
+																	F.objectType = "VarOverlay"
 																} else {
-																	if (m[0].match(/SmpOverlay/)) {
-																		F.display = this.smpOverlays[D[1]];
-																		F.objectType = "SmpOverlay"
-																	} else {
-																		F.display = this.isGroupedData ? r.w.smps[L] : r.y.smps[L];
-																		F.objectType = "Smp"
-																	}
+																	F.display = r.y.vars[L];
+																	F.objectType = "Var"
 																}
 															}
 															return F
 														} else {
-															if (m[0] && m[0].match(/Cat/)) {
-																var F = {};
+															if (m[0] && m[0].match(/Smp/)) {
 																var D = m[0].split("-");
-																F.display = D[1];
-																F.objectType = "Cat";
+																var L = parseInt(D[1]);
+																var F = this.extractDataObject([L], this.varIndices);
+																if (m[0].match(/SmpOvrSgr/)) {
+																	F.display = this.smpOverlays[D[1]] + " : " + D[2];
+																	F.objectType = "SmpOverlaySgr"
+																} else {
+																	if (m[0].match(/SmpOvr/)) {
+																		F.display = this.isGroupedData ? r.w.smps[L] + " : " + this.smpOverlays[D[2]] + " : " + r.w.factors[this.smpOverlays[D[2]]][L] : r.y.smps[L] + " : " + this.smpOverlays[D[2]] + " : " + r.x[this.smpOverlays[D[2]]][L];
+																		F.objectType = "SmpOverlay"
+																	} else {
+																		if (m[0].match(/SmpOverlay/)) {
+																			F.display = this.smpOverlays[D[1]];
+																			F.objectType = "SmpOverlay"
+																		} else {
+																			F.display = this.isGroupedData ? r.w.smps[L] : r.y.smps[L];
+																			F.objectType = "Smp"
+																		}
+																	}
+																}
 																return F
 															} else {
-																if (m[0] && m[0].match(/Onc/)) {
+																if (m[0] && m[0].match(/Cat/)) {
 																	var F = {};
 																	var D = m[0].split("-");
 																	F.display = D[1];
-																	F.objectType = "Onc";
+																	F.objectType = "Cat";
 																	return F
 																} else {
-																	return
+																	if (m[0] && m[0].match(/Onc/)) {
+																		var F = {};
+																		var D = m[0].split("-");
+																		F.display = D[1];
+																		F.objectType = "Onc";
+																		return F
+																	} else {
+																		return
+																	}
 																}
 															}
 														}
@@ -39763,6 +40574,7 @@ CanvasXpress.prototype.initEvents = function() {
 				case "Treemap":
 				case "TagCloud":
 				case "ParallelCoordinates":
+				case "Sankey":
 					var i = "";
 					if (b.display) {
 						return "<b>" + b.display + "</b><br>"
@@ -46185,187 +46997,195 @@ CanvasXpress.prototype.initData = function(a) {
 			}
 		}
 	};
-	this.groupSamples = function(H, v, E, b, o, f) {
+	this.groupSamples = function(J, w, G, b, p, f) {
 		this.functionCaller = "groupSamples";
-		var G = this.data;
-		if (!this.isArray(H)) {
-			H = [H]
+		var I = this.data;
+		if (!this.isArray(J)) {
+			J = [J]
 		}
-		if (!H || H.length < 1 || !G.x) {
+		if (!J || J.length < 1 || !I.x) {
 			return this.ungroupSamples()
 		}
-		for (var C = 0; C < H.length; C++) {
-			if (!H || !G.x[H[C]]) {
+		for (var E = 0; E < J.length; E++) {
+			if (!J || !I.x[J[E]]) {
 				return this.ungroupSamples()
 			}
 		}
-		if (!this.isDOE && this.layoutComb && !G.l.group) {
-			G.l.group = H;
-			if (!o) {
+		if (!this.isDOE && this.layoutComb && !I.l.group) {
+			I.l.group = J;
+			if (!p) {
 				this.draw()
 			}
 			return
 		}
-		if (G.l && G.l.group) {
-			G.l.group = H
+		if (I.l && I.l.group) {
+			I.l.group = J
 		}
-		if (this.isDOE && this.layoutComb && G.l.comp) {
+		if (this.isDOE && this.layoutComb && I.l.comp) {
 			this.varIndices = [];
-			for (var C = 0; C < G.l.comp.length; C++) {
-				for (var A = 0; A < G.l.comp[C].length; A++) {
-					this.varIndices.push(G.l.comp[C][A])
+			for (var E = 0; E < I.l.comp.length; E++) {
+				for (var C = 0; C < I.l.comp[E].length; C++) {
+					this.varIndices.push(I.l.comp[E][C])
 				}
 			}
 		}
 		var e = {};
-		var I = [];
-		var B = 0;
+		var K = [];
+		var D = 0;
 		var m = this.getObjectArray(this.smpOverlays);
-		var p = G.w && G.w.smps ? G.w.smps : false;
+		var q = I.w && I.w.smps ? I.w.smps : false;
 		if (!b) {
 			this.resetIndices()
 		}
 		this.isGroupedData = true;
-		this.groupingFactors = H;
+		this.groupingFactors = J;
 		this.resetObject(true);
 		this.hiddenGrps = [];
-		for (var C = 0; C < this.smpIndices.length; C++) {
-			var r = this.smpIndices[C];
-			var w = [];
+		for (var E = 0; E < this.smpIndices.length; E++) {
+			var u = this.smpIndices[E];
 			var x = [];
-			var K;
-			var y;
-			for (var A = 0; A < H.length; A++) {
-				var D = H[A];
-				K = G.x[D][r];
-				if (!K) {
-					K = "NA"
+			var z = [];
+			var M;
+			var A;
+			for (var C = 0; C < J.length; C++) {
+				var F = J[C];
+				M = I.x[F][u];
+				if (!M) {
+					M = "NA"
 				}
-				w.push(K);
-				if (!m.hasOwnProperty(D)) {
-					x.push(K)
+				x.push(M);
+				if (!m.hasOwnProperty(F)) {
+					z.push(M)
 				}
 			}
-			K = w.join(" - ");
-			y = x.length > 0 ? x.join(" - ") : "";
-			if (!e.hasOwnProperty(K)) {
-				G.w.smps.push(K);
-				G.w.labs.push(y);
-				I[B] = K;
-				e[K] = [];
-				e[K].push(r);
-				B++
+			M = x.join(" - ");
+			A = z.length > 0 ? z.join(" - ") : "";
+			if (!e.hasOwnProperty(M)) {
+				I.w.smps.push(M);
+				I.w.labs.push(A);
+				K[D] = M;
+				e[M] = [];
+				e[M].push(u);
+				D++
 			} else {
-				e[K].push(r)
+				e[M].push(u)
 			}
 		}
-		if (I.length < 1) {
-			G.w.smps = p;
+		if (K.length < 1) {
+			I.w.smps = q;
 			this.draw();
 			return
 		}
-		for (var C = 0; C < I.length; C++) {
-			var K = I[C];
-			G.w.grps.push(e[K])
+		for (var E = 0; E < K.length; E++) {
+			var M = K[E];
+			I.w.grps.push(e[M])
 		}
 		this.grpIndices = [];
-		if (E) {
-			for (var C = 0; C < E.length; C++) {
-				this.grpIndices.push(E[C]);
+		if (G) {
+			for (var E = 0; E < G.length; E++) {
+				this.grpIndices.push(G[E]);
 				this.hiddenGrps.push(false)
 			}
 		} else {
-			for (var C = 0; C < G.w.grps.length; C++) {
-				this.grpIndices.push(C);
+			for (var E = 0; E < I.w.grps.length; E++) {
+				this.grpIndices.push(E);
 				this.hiddenGrps.push(false)
 			}
 		}
-		for (var C = 0; C < this.varIndices.length; C++) {
-			G.w.vars.push(G.y.vars[this.varIndices[C]])
+		for (var E = 0; E < this.varIndices.length; E++) {
+			I.w.vars.push(I.y.vars[this.varIndices[E]])
 		}
-		var q = {};
-		for (var K in G.x) {
-			q[K] = this.isNumeric(G.x[K])
+		var r = {};
+		for (var M in I.x) {
+			r[M] = this.isNumeric(I.x[M])
 		}
-		for (var C = 0; C < G.w.grps.length; C++) {
-			for (var K in G.x) {
-				if (!G.w.factors.hasOwnProperty(K)) {
-					G.w.factors[K] = []
+		for (var E = 0; E < I.w.grps.length; E++) {
+			for (var M in I.x) {
+				if (!I.w.factors.hasOwnProperty(M)) {
+					I.w.factors[M] = []
 				}
-				var n;
-				if (q[K]) {
-					n = [];
-					for (var A = 0; A < G.w.grps[C].length; A++) {
-						var J = G.x[K][G.w.grps[C][A]];
-						if (!isNaN(J)) {
-							n.push(J)
+				var o;
+				if (r[M]) {
+					o = [];
+					for (var C = 0; C < I.w.grps[E].length; C++) {
+						var L = I.x[M][I.w.grps[E][C]];
+						if (!isNaN(L)) {
+							o.push(L)
 						}
 					}
-					G.w.factors[K].push(this.mean(n))
+					I.w.factors[M].push(this.mean(o))
 				} else {
-					n = {};
-					for (var A = 0; A < G.w.grps[C].length; A++) {
-						var J = G.x[K][G.w.grps[C][A]];
-						if (J != null && J != "") {
-							n[G.x[K][G.w.grps[C][A]]] = true
+					o = {};
+					for (var C = 0; C < I.w.grps[E].length; C++) {
+						var L = I.x[M][I.w.grps[E][C]];
+						if (L != null && L != "") {
+							o[I.x[M][I.w.grps[E][C]]] = true
 						}
 					}
-					var c = this.getKeys(n);
-					G.w.factors[K].push(c.join(" + "))
+					var c = this.getKeys(o);
+					I.w.factors[M].push(c.join(" + "))
 				}
 			}
 		}
-		var q = [];
-		if (v) {
-			if (this.isArray(v)) {
-				q = v
+		var r = [];
+		if (w) {
+			if (this.isArray(w)) {
+				r = w
 			} else {
-				q.push(v)
+				r.push(w)
 			}
 		} else {
-			v = this.graphType == "Boxplot" ? "iqr" : this.graphType.match(/Stacked/i) ? "sum" : "mean";
-			q.push(v)
+			w = this.graphType == "Boxplot" ? "iqr" : this.graphType.match(/Stacked/i) ? "sum" : "mean";
+			r.push(w)
 		}
-		for (var u = 0; u < q.length; u++) {
-			var F = [];
-			var l = q[u];
+		for (var v = 0; v < r.length; v++) {
+			var H = [];
+			var l = r[v];
 			if (this.isTransformedData) {
-				a = G.y.trans
+				a = I.y.trans
 			} else {
 				if (this.isRawData) {
-					a = G.y.data
+					a = I.y.data
 				} else {
 					if (this.summaryType == "median" || this.summaryType == "iqr") {
-						a = G.y.median
+						a = I.y.median
 					} else {
 						if (this.summaryType == "mean") {
-							a = G.y.mean
+							a = I.y.mean
 						} else {
 							if (this.summaryType == "cor") {
-								a = G.y.cor
+								a = I.y.cor
 							} else {
 								if (this.summaryType == "sum") {
-									a = G.y.sum
+									a = I.y.sum
 								} else {
-									a = G.y[this.summaryType]
+									a = I.y[this.summaryType]
 								}
 							}
 						}
 					}
 				}
 			}
-			for (var C = 0; C < this.varIndices.length; C++) {
-				var r = this.varIndices[C];
-				F[r] = [];
-				for (var A = 0; A < G.w.grps.length; A++) {
-					F[r][A] = [];
-					for (var z = 0; z < G.w.grps[A].length; z++) {
-						var g = G.w.grps[A][z];
-						F[r][A].push(a[r][g])
+			for (var E = 0; E < this.varIndices.length; E++) {
+				var u = this.varIndices[E];
+				H[u] = [];
+				for (var C = 0; C < I.w.grps.length; C++) {
+					H[u][C] = [];
+					for (var B = 0; B < I.w.grps[C].length; B++) {
+						var g = I.w.grps[C][B];
+						H[u][C].push(a[u][g])
 					}
 				}
 			}
-			this.summarize(l, F)
+			this.summarize(l, H)
+		}
+		if (this.colorBy && this.isInArray(this.colorBy, this.groupingFactors)) {
+			var y = this.groupingFactors.indexOf(this.colorBy);
+			for (var E = 0; E < I.w.smps.length; E++) {
+				var z = I.w.smps[E].split(" - ");
+				var n = z.splice(y).join(" - ");
+				I.w.smps[E] = z
+			}
 		}
 		this.updateMetaData("w");
 		if (!f) {
@@ -46379,7 +47199,7 @@ CanvasXpress.prototype.initData = function(a) {
 				}
 			}
 		}
-		if (!o) {
+		if (!p) {
 			this.draw()
 		}
 	};
@@ -46911,14 +47731,14 @@ CanvasXpress.prototype.initData = function(a) {
 		}
 	};
 	this.validatePropertyValues = function(e) {
-		var m = ["color", "shape", "size", "pattern", "outline", "transparency", "motion", "ellipse"];
-		for (var f = 0; f < m.length; f++) {
-			var c = this[m[f] + "By"];
-			var g = this[c + "Data"];
+		var n = ["color", "shape", "size", "pattern", "outline", "motion", "ellipse"];
+		for (var f = 0; f < n.length; f++) {
+			var c = this[n[f] + "By"];
+			var k = this[c + "Data"];
 			if (c) {
 				if (this.isMultidimensionalData) {
-					if (g && !this.data.y[g]) {
-						this[m[f] + "By"] = false;
+					if (k && !this.data.y[k]) {
+						this[n[f] + "By"] = false;
 						this[c + "Data"] = false
 					}
 				} else {
@@ -46929,7 +47749,7 @@ CanvasXpress.prototype.initData = function(a) {
 							if (this.getSampleIndices(c) || this.getSampleIndices(c, true)) {
 								continue
 							} else {
-								this[m[f] + "By"] = false
+								this[n[f] + "By"] = false
 							}
 						}
 					}
@@ -46938,13 +47758,13 @@ CanvasXpress.prototype.initData = function(a) {
 		}
 		if (this.treemapBy.length > 0) {
 			var b = [];
-			var k = [];
+			var m = [];
 			for (var f = 0; f < this.treemapBy.length; f++) {
 				if (this.treemapBy[f] == "sample") {
-					k.push("sample")
+					m.push("sample")
 				} else {
 					if (!this.data.x || !this.data.x.hasOwnProperty(this.treemapBy[f])) {
-						k.push("sample")
+						m.push("sample")
 					} else {
 						if (this.data.x && this.data.x.hasOwnProperty(this.treemapBy[f])) {
 							b.push(this.treemapBy[f])
@@ -46952,99 +47772,61 @@ CanvasXpress.prototype.initData = function(a) {
 					}
 				}
 			}
-			if (k.length > 0) {}
+			if (m.length > 0) {}
 			this.treemapBy = b
 		}
-		if (this.shapeBy && !this.isMultidimensionalData && !this.graphType.match(/Boxplot|Dotplot|Scatter/)) {
+		var g = this.graphType.match(/Boxplot|Dotplot|Scatter/);
+		if (this.shapeBy && !this.isMultidimensionalData && !g) {
 			this.shapeBy = false
+		} else {
+			if (this.shapeBy && this.groupingFactors.length > 1 && !g) {
+				this.shapeBy = "variable"
+			} else {
+				if (this.shapeBy && this.groupingFactors.length == 1 && this.shapeBy != this.groupingFactors[0] && !g) {
+					this.shapeBy = "variable"
+				}
+			}
 		}
-		if (this.sizeBy && !this.isMultidimensionalData && !this.graphType.match(/Boxplot|Dotplot|Scatter/)) {
+		if (this.sizeBy && !this.isMultidimensionalData && !g) {
 			this.sizeBy = false
+		} else {
+			if (this.sizeBy && this.groupingFactors.length > 1 && !g) {
+				this.sizeBy = "variable"
+			} else {
+				if (this.sizeBy && this.groupingFactors.length == 1 && this.sizeBy != this.groupingFactors[0] && !g) {
+					this.sizeBy = "variable"
+				}
+			}
 		}
 		if (this.colorBy && this.graphType == "Heatmap" && !this.isMultidimensionalData) {
 			this.colorBy = false
+		} else {
+			if (this.colorBy && this.groupingFactors.length > 1 && !this.graphType.match(/Boxplot|Dotplot|Scatter|Stacked|Treemap/)) {
+				this.colorBy = "variable"
+			} else {
+				if (this.colorBy && this.groupingFactors.length == 1 && this.colorBy != this.groupingFactors[0] && !this.graphType.match(/Boxplot|Dotplot|Scatter|Stacked|Treemap/)) {
+					this.colorBy = "variable"
+				}
+			}
 		}
-		if ((this.shapeBy || this.sizeBy || this.patternBy || this.outlineBy || this.transparencyBy) && !this.colorBy && !this.isMultidimensionalData && !this.graphType == "Heatmap") {
+		if ((this.shapeBy || this.sizeBy || this.patternBy || this.outlineBy) && !this.colorBy && !this.isMultidimensionalData && !this.graphType == "Heatmap") {
 			this.colorBy = "variable"
 		} else {
-			if (!this.shapeBy && !this.sizeBy && !this.patternBy && !this.transparencyBy && this.colorBy == "variable") {
+			if (!this.shapeBy && !this.sizeBy && !this.patternBy && this.colorBy == "variable") {
 				this.colorBy = false
 			}
 		}
-		if (this.colorBy || this.outlineBy) {
-			this.updateMetadataColorProperties()
+		if (this.shapeBy == "variable" && !this.colorBy && !this.graphType.match(/Scatter/)) {
+			this.colorBy = "variable"
+		}
+		if (this.sizeBy == "variable" && !this.colorBy && !this.graphType.match(/Scatter/)) {
+			this.colorBy = "variable"
+		}
+		if (this.patternBy == "variable" && !this.colorBy && !this.graphType.match(/Scatter/)) {
+			this.colorBy = "variable"
 		}
 		if (e) {
 			this.setLegends()
-		}
-	};
-	this.updateMetadataColorProperties = function() {
-		var e = this;
-		var k = this.colorSchemes;
-		var d = this.data;
-		var f = this.meta.data;
-		var b = this.metadataColorProperties;
-		var g = function(l, r) {
-			var q = r && r.spectrum ? r.spectrum : e.colorSpectrum;
-			var t = r && r.spectrumZeroValue != null ? r.spectrumZeroValue : null;
-			var c = r && r.spectrumBreaks ? r.spectrumBreaks : false;
-			if (l) {
-				if (l.type == "Numeric") {
-					l.colorBrew = e.getColorBrew(q, l.min, l.max, t, c)
-				} else {
-					if (r && r.colors) {
-						l.colors = r.colors
-					} else {
-						if (r && r.spectrum) {
-							var u = Math.max(3, l.levels.length);
-							if (k[r.spectrum][u]) {
-								l.colors = k[r.spectrum][u]
-							} else {
-								var o = e.getKeys(k[r.spectrum]);
-								o.sort(function(n, m) {
-									return n - m
-								});
-								if (u > o[o.length - 1]) {
-									u--;
-									while (!k[r.spectrum][u]) {
-										u--
-									}
-								} else {
-									u++;
-									while (!k[r.spectrum][u]) {
-										u++
-									}
-								}
-								l.colors = k[r.spectrum][u]
-							}
-						} else {
-							l.colors = e.colors
-						}
-					}
-				}
-			}
-		};
-		if (this.colorBy) {
-			if (d.x && d.x[this.colorBy]) {
-				g(f.x[this.colorBy], b[this.colorBy])
-			} else {
-				if (d.z && d.z[this.colorBy]) {
-					g(f.z[this.colorBy], b[this.colorBy])
-				} else {
-					if (f.y.range && f.y.range[this.colorBy]) {
-						g(f.y.range[this.colorBy])
-					}
-				}
-			}
-		}
-		if (this.outlineBy) {
-			if (d.x && d.x[this.outlineBy]) {
-				g(f.x[this.outlineBy], b[this.outlineBy])
-			} else {
-				if (d.z && d.z[this.outlineBy]) {
-					g(f.z[this.outlineBy], b[this.outlineBy])
-				}
-			}
 		}
 	};
 	this.getPropertyValueBin = function(d, f, c, k, e) {
@@ -47055,14 +47837,14 @@ CanvasXpress.prototype.initData = function(a) {
 		var e = b.vals.length - 1;
 		return parseFloat((((d - b.min) / (b.max - b.min)) * (this[h[c]][e] - this[h[c]][0]))) + parseInt(this[h[c]][0])
 	};
-	this.getPropertyValue = function(n, o, w) {
-		var k, f, y;
-		var d = this[w];
-		var u = this.isGroupedData && (this.graphType == "Dotplot" || (this.graphType == "Boxplot" && this.showBoxplotOriginalData));
-		var s = this.groupingFactors && this.groupingFactors.length == 1;
+	this.getPropertyValue = function(o, r, x) {
+		var k, f, z, n;
+		var d = this[x];
+		var v = this.isGroupedData && (this.graphType == "Dotplot" || (this.graphType == "Boxplot" && this.showBoxplotOriginalData));
+		var u = this.groupingFactors && this.groupingFactors.length == 1;
 		var e = this.data;
-		var v = this.meta.data;
-		var r = {
+		var w = this.meta.data;
+		var s = {
 			colorBy: "colors",
 			outlineBy: "colors",
 			outlineByData: "colors",
@@ -47073,11 +47855,11 @@ CanvasXpress.prototype.initData = function(a) {
 			patternBy: "patterns",
 			patternByData: "patterns"
 		};
-		var x = function() {
+		var y = function() {
 			var g = {};
 			var p = 0;
-			for (var m = 0; m < e.w.grps[o].length; m++) {
-				var c = e.x[d][e.w.grps[o][m]];
+			for (var m = 0; m < e.w.grps[r].length; m++) {
+				var c = e.x[d][e.w.grps[r][m]];
 				if (!g.hasOwnProperty(c)) {
 					g[c] = true;
 					p++
@@ -47088,79 +47870,101 @@ CanvasXpress.prototype.initData = function(a) {
 			}
 			return true
 		};
-		var b = w ? this[r[w]].length : false;
-		if (d && e.y.hasOwnProperty(d)) {
-			k = e.y[d][n][o];
-			f = v[d];
-			y = f.type
+		var b = x ? this[s[x]].length : false;
+		if (o != null && r != null && d && e.y.hasOwnProperty(d)) {
+			k = e.y[d][o][r];
+			f = w[d];
+			z = f.type
 		} else {
-			if (d && e.x && e.x.hasOwnProperty(d)) {
-				f = v.x[d];
-				if (u || !this.isGroupedData) {
-					k = e.x[d][o];
-					y = f.type
+			if (r != null && d && e.x && e.x.hasOwnProperty(d)) {
+				f = w.x[d];
+				if (v || !this.isGroupedData) {
+					k = this.isGroupedData ? e.w.smps[r] : e.x[d][r];
+					z = f.type;
+					if (f[x] && f[x].hasOwnProperty(k)) {
+						return f[x][k]
+					}
 				} else {
-					if (s && (this.groupingFactors[0] == d || x())) {
-						k = e.x[d][e.w.grps[o][0]];
-						return w.match(/colorBy|patternBy/) ? this[r[w]][f.order[k] % b] : this[r[w]][0]
+					if (u && (this.groupingFactors[0] == d || y())) {
+						k = e.x[d][e.w.grps[r][0]];
+						if (x.match(/colorBy|patternBy/)) {
+							if (f[x] && f[x].hasOwnProperty(k)) {
+								return f[x][k]
+							} else {
+								if (f[s[x]]) {
+									return f[s[x]][f.order[k] % b]
+								} else {
+									return this[s[x]][f.order[k] % b]
+								}
+							}
+						} else {
+							return f[s[x]] ? f[s[x]][0] : this[s[x]][0]
+						}
 					} else {
-						return w.match(/colorBy|patternBy/) ? this[r[w]][n % b] : this[r[w]][0]
+						return o != null && x.match(/colorBy|patternBy/) ? this[s[x]][o % b] : this[s[x]][0]
 					}
 				}
 			} else {
-				if (d && e.z && e.z.hasOwnProperty(d)) {
-					k = e.z[d][n];
-					f = v.z[d];
-					y = f.type
+				if (o != null && d && e.z && e.z.hasOwnProperty(d)) {
+					k = e.z[d][o];
+					f = w.z[d];
+					z = f.type;
+					if (f[x] && f[x].hasOwnProperty(k)) {
+						return f[x][k]
+					}
 				} else {
-					if (w && ((this.isGroupedData && v.w.smps.hasOwnProperty(w)) || (!this.isGroupedData && v.y.range.hasOwnProperty(w)))) {
-						k = e.y.data[n][o];
-						f = v.y.range[w];
-						y = v.y.type
+					if (o != null && r != null && x && ((this.isGroupedData && w.w.smps.hasOwnProperty(x)) || (!this.isGroupedData && w.y.range.hasOwnProperty(x)))) {
+						k = e.y.data[o][r];
+						f = w.y.range[x];
+						z = w.y.type
 					} else {
-						if (!this.isGroupedData && v.y.range.hasOwnProperty(d)) {
-							k = e.y.data[n][o];
-							f = v.y.range[d];
-							y = f.type;
-							if (v.modified && v.modified.z && v.modified.z[d]) {
-								return this[r[w]][k % b]
+						if (o != null && !this.isGroupedData && w.y.range.hasOwnProperty(d)) {
+							k = r != null ? e.y.data[o][r] : e.y.data[o][this.getSampleIndices(d)];
+							f = w.y.range[d];
+							z = f.type;
+							if (w.modified && w.modified.z && w.modified.z[d]) {
+								return this[s[x]][k % b]
 							} else {
 								if (!f.colorBrew) {
 									f.colorBrew = this.getColorBrew(false, f.min, f.max)
 								}
 							}
 						} else {
-							if (n != null) {
-								return d && w.match(/colorBy|patternBy/) ? this[r[w]][n % b] : !d && w == "colorBy" ? this[r[w]][n % b] : this[r[w]][0]
+							if (o != null) {
+								if (d) {
+									return this[s[x]][o % b]
+								} else {
+									return !d && x == "colorBy" ? this[s[x]][o % b] : this[s[x]][0]
+								}
 							} else {
-								return w.match(/sizeBy/) ? 10 : this[r[w]][0]
+								return this[s[x]][0]
 							}
 						}
 					}
 				}
 			}
 		}
-		if (y == "Numeric") {
-			if (w.match(/colorBy|outlineBy/)) {
-				return !isNaN(k) ? this.getColorForValue(f.colorBrew, k) : this.missingDataColor
+		if (z == "Numeric") {
+			if (x.match(/colorBy|outlineBy/)) {
+				return !isNaN(k) ? this.getColorForValue(f.colorBrew, Number(k)) : this.missingDataColor
 			} else {
-				if (w.match(/shapeBy/)) {
+				if (x.match(/shapeBy/)) {
 					if (!isNaN(k)) {
-						return "pie" + this.getPropertyValueBin(f, k, true, r, w)
+						return "pie" + this.getPropertyValueBin(f, k, true, s, x)
 					} else {
 						return "sphere"
 					}
 				} else {
-					if (w.match(/sizeBy/)) {
+					if (x.match(/sizeBy/)) {
 						if (!isNaN(k)) {
-							return this.sizeByContinuous ? this.getPropertyValueSize(f, k) : this.getPropertyValueBin(f, k, false, r, w)
+							return this.sizeByContinuous ? this.getPropertyValueSize(f, k) : this.getPropertyValueBin(f, k, false, s, x)
 						} else {
-							return this[r[w]][0]
+							return this[s[x]][0]
 						}
 					} else {
-						if (w.match(/patternBy/)) {
+						if (x.match(/patternBy/)) {
 							if (!isNaN(k)) {
-								return this.getPropertyValueBin(f, k, false, r, w)
+								return this.getPropertyValueBin(f, k, false, s, x)
 							} else {
 								return "closed"
 							}
@@ -47169,8 +47973,8 @@ CanvasXpress.prototype.initData = function(a) {
 				}
 			}
 		} else {
-			if (y == "String") {
-				return w.match(/sizeBy/) ? parseInt(this[r[w]][f.order[k] % b]) : this[r[w]][f.order[k] % b]
+			if (z == "String") {
+				return x.match(/sizeBy/) ? parseInt(this[s[x]][f.order[k] % b]) : this[s[x]][f.order[k] % b]
 			}
 		}
 	};
@@ -47215,32 +48019,57 @@ CanvasXpress.prototype.initData = function(a) {
 			}
 		}
 	};
-	this.updateMetaData = function(q, R, O, v) {
+	this.updateMetaData = function(u, R, O, w) {
+		var g = this;
 		var T = this.meta.data;
-		var z = this.data;
-		var C = this.metadataColorProperties;
-		var u = ["x", "z", "w"];
-		var x = this.font;
-		if (!q || q == "w" || q == "x" || q == "z") {
-			if (q && O) {
-				if (!R) {
-					delete(T[q])
+		var A = this.data;
+		var v = ["x", "z", "w"];
+		var y = this.font;
+		var e = function(o, m, d) {
+			var s = {};
+			if (g.legendOrder && g.legendOrder[o]) {
+				for (var r = 0; r < g.legendOrder[o].length; r++) {
+					s[g.legendOrder[o][r]] = r
+				}
+				var t = g.legendOrder[o].length;
+				if (m) {
+					for (var r in m) {
+						if (!s.hasOwnProperty(r)) {
+							s[r] = t++
+						}
+					}
 				} else {
-					if (T[q][R]) {
-						delete(T[q][R])
+					for (var r = 0; r < d.length; r++) {
+						if (!s.hasOwnProperty(d[r])) {
+							s[r] = t++
+						}
+					}
+				}
+				return s
+			} else {
+				return false
+			}
+		};
+		if (!u || u == "w" || u == "x" || u == "z") {
+			if (u && O) {
+				if (!R) {
+					delete(T[u])
+				} else {
+					if (T[u][R]) {
+						delete(T[u][R])
 					}
 				}
 			}
-			for (var N = 0; N < u.length; N++) {
-				var I = u[N];
-				if (q) {
-					if (q != I) {
+			for (var N = 0; N < v.length; N++) {
+				var I = v[N];
+				if (u) {
+					if (u != I) {
 						continue
 					}
 				}
-				x = I == "z" ? this.varLabelFont : this.smpLabelFont;
-				if (z[I]) {
-					for (var K in z[I]) {
+				y = I == "z" ? this.varLabelFont : this.smpLabelFont;
+				if (A[I]) {
+					for (var K in A[I]) {
 						if (R) {
 							if (R != K) {
 								continue
@@ -47251,97 +48080,183 @@ CanvasXpress.prototype.initData = function(a) {
 								continue
 							}
 							if (K = "grps") {
-								T[I][K] = z[I][K];
+								T[I][K] = A[I][K];
 								T[I].smps = {};
-								for (var L = 0; L < z[I].smps.length; L++) {
-									T[I].smps[z[I].smps[L]] = L
+								for (var L = 0; L < A[I].smps.length; L++) {
+									T[I].smps[A[I].smps[L]] = L
 								}
 								continue
 							}
 						}
 						T[I][K] = {};
-						T[I][K].len = this.measureText(K, x);
+						T[I][K].len = this.measureText(K, y);
 						var J = T[I][K].len;
 						var P = K.length;
-						var y = K;
-						var H = this.isNumeric(z[I][K]) && !this.isEmpty(z[I][K]);
+						var z = K;
+						var H = this.isNumeric(A[I][K]) && !this.isEmpty(A[I][K]);
 						T[I][K].type = H ? "Numeric" : "String";
 						var M = 0;
 						var S = 0;
-						var B = "";
+						var C = "";
 						if (T[I][K].type == "String") {
-							T[I][K].unique = this.isUnique(z[I][K]);
-							this.updateVocabulary(z[I][K]);
+							T[I][K].unique = this.isUnique(A[I][K]);
+							this.updateVocabulary(A[I][K]);
 							var D = {};
-							for (var L = 0; L < z[I][K].length; L++) {
-								D[z[I][K][L]] = true
+							for (var L = 0; L < A[I][K].length; L++) {
+								D[A[I][K][L]] = true
 							}
+							var c = e(K, D);
 							D = this.stringRangeSort(this.getKeys(D));
 							T[I][K].levels = D;
 							T[I][K].order = {};
 							for (var L = 0; L < D.length; L++) {
-								T[I][K].order[D[L]] = L;
-								var l = this.measureText(D[L], x);
-								if (l > M) {
-									M = l;
+								T[I][K].order[D[L]] = c ? c[D[L]] : L;
+								var p = this.measureText(D[L], y);
+								if (p > M) {
+									M = p;
 									S = D[L].length;
-									B = D[L]
+									C = D[L]
 								}
 							}
 							T[I][K].maxLevLen = M;
 							T[I][K].maxLevChr = S;
-							T[I][K].maxLevStr = B;
-							if (C.hasOwnProperty(K) && C[K].hasOwnProperty("colors")) {
-								T[I][K].colors = C[K].colors
-							} else {
-								if (C.hasOwnProperty(K) && C[K].hasOwnProperty("spectrum")) {
-									var F = D.length;
-									if (this.colorSchemes[C[K].spectrum][F]) {
-										T[I][K].colors = this.colorSchemes[C[K].spectrum][F]
-									} else {
-										var U = this.getKeys(this.colorSchemes[C[K].spectrum]);
-										U.sort(function(k, d) {
-											return k - d
-										});
-										if (F > U[U.length - 1]) {
-											F--;
-											while (!this.colorSchemes[C[K].spectrum][F]) {
-												F--
-											}
-										} else {
-											F++;
-											while (!this.colorSchemes[C[K].spectrum][F]) {
-												F++
-											}
+							T[I][K].maxLevStr = C;
+							if (this.colorKey && this.colorKey[K]) {
+								if (this.isObject(this.colorKey[K])) {
+									T[I][K].colorBy = this.colorKey[K];
+									for (var L = 0; L < D.length; L++) {
+										if (!T[I][K].colorBy.hasOwnProperty(D[L])) {
+											T[I][K].colorBy[D[L]] = this.colors[L % this.colors.length]
 										}
-										T[I][K].colors = this.colorSchemes[C[K].spectrum][F]
 									}
 								} else {
-									T[I][K].colors = [];
-									var p = 0;
-									for (var L = 0; L < D.length; L++) {
-										T[I][K].colors.push(this.colors[p % this.colors.length]);
-										p++
+									if (this.isArray(this.colorKey[K])) {
+										T[I][K].colors = mcp[K].colors
+									} else {
+										var F = D.length;
+										if (this.colorSchemes[this.colorKey[K]][F]) {
+											T[I][K].colors = this.colorSchemes[this.colorKey[K]][F]
+										} else {
+											var U = this.getKeys(this.colorSchemes[this.colorKey[K]]);
+											U.sort(function(k, d) {
+												return k - d
+											});
+											if (F > U[U.length - 1]) {
+												F--;
+												while (!this.colorSchemes[this.colorKey[K]][F]) {
+													F--
+												}
+											} else {
+												F++;
+												while (!this.colorSchemes[this.colorKey[K]][F]) {
+													F++
+												}
+											}
+											T[I][K].colors = this.colorSchemes[this.colorKey[K]][F]
+										}
 									}
+								}
+							} else {
+								T[I][K].colors = [];
+								var q = 0;
+								for (var L = 0; L < D.length; L++) {
+									T[I][K].colors.push(this.colors[q % this.colors.length]);
+									q++
+								}
+							}
+							if (this.shapeKey && this.shapeKey[K]) {
+								if (this.isObject(this.shapeKey[K])) {
+									T[I][K].shapeBy = this.shapeKey[K];
+									for (var L = 0; L < D.length; L++) {
+										if (!T[I][K].shapeBy.hasOwnProperty(D[L])) {
+											T[I][K].shapeBy[D[L]] = this.shapes[L % this.shapes.length]
+										}
+									}
+								} else {
+									T[I][K].shapes = this.shapeKey[K]
+								}
+							} else {
+								T[I][K].shapes = [];
+								var q = 0;
+								for (var L = 0; L < D.length; L++) {
+									T[I][K].shapes.push(this.shapes[q % this.shapes.length]);
+									q++
+								}
+							}
+							if (this.sizeKey && this.sizeKey[K]) {
+								if (this.isObject(this.sizeKey[K])) {
+									T[I][K].sizeBy = this.sizeKey[K];
+									for (var L = 0; L < D.length; L++) {
+										if (!T[I][K].sizeBy.hasOwnProperty(D[L])) {
+											T[I][K].sizeBy[D[L]] = this.sizes[L % this.sizes.length]
+										}
+									}
+								} else {
+									T[I][K].sizes = this.sizeKey[K]
+								}
+							} else {
+								T[I][K].sizes = [];
+								var q = 0;
+								for (var L = 0; L < D.length; L++) {
+									T[I][K].sizes.push(this.sizes[q % this.sizes.length]);
+									q++
+								}
+							}
+							if (this.patternKey && this.patternKey[K]) {
+								if (this.isObject(this.patternKey[K])) {
+									T[I][K].patternBy = this.patternKey[K];
+									for (var L = 0; L < D.length; L++) {
+										if (!T[I][K].patternBy.hasOwnProperty(D[L])) {
+											T[I][K].patternBy[D[L]] = this.patterns[L % this.patterns.length]
+										}
+									}
+								} else {
+									T[I][K].patterns = this.patternKey[K]
+								}
+							} else {
+								T[I][K].patterns = [];
+								var q = 0;
+								for (var L = 0; L < D.length; L++) {
+									T[I][K].patterns.push(this.patterns[q % this.patterns.length]);
+									q++
 								}
 							}
 						} else {
 							T[I][K].unique = false;
-							for (var L = 0; L < z[I][K].length; L++) {
-								if (z[I][K][L] != null) {
-									z[I][K][L] = Number(z[I][K][L])
+							for (var L = 0; L < A[I][K].length; L++) {
+								if (A[I][K][L] != null) {
+									A[I][K][L] = Number(A[I][K][L])
 								} else {
-									z[I][K][L] = null
+									A[I][K][L] = null
 								}
 							}
-							var w = this.range(z[I][K]);
-							T[I][K].rmin = w[0];
-							T[I][K].rmax = w[1];
-							T[I][K].n = z[I][K].length;
-							var Q = C.hasOwnProperty(K) && C[K].hasOwnProperty("spectrum") ? C[K].spectrum : this.colorSpectrum;
-							var e = C.hasOwnProperty(K) && C[K].hasOwnProperty("spectrumZeroValue") ? C[K].spectrumZeroValue : null;
-							var c = C.hasOwnProperty(K) && C[K].hasOwnProperty("spectrumBreaks") ? C[K].spectrumBreaks : false;
-							T[I][K].colorBrew = this.getColorBrew(Q, w[0], w[1], e, c);
+							var x = this.range(A[I][K]);
+							T[I][K].rmin = x[0];
+							T[I][K].rmax = x[1];
+							T[I][K].n = A[I][K].length;
+							var Q = this.colorSpectrum;
+							if (this.colorKey && this.colorKey[K]) {
+								if (this.isObject(this.colorKey[K])) {
+									T[I][K].colorBy = this.colorKey[K];
+									for (var L = 0; L < A[I][K].length; L++) {
+										if (!T[I][K].colorBy.hasOwnProperty(A[I][K][L])) {
+											T[I][K].colorBy[A[I][K][L]] = this.colors[L % this.colors.length]
+										}
+									}
+									T[I][K].orderS = e(K, false, A[I][K])
+								} else {
+									if (this.isArray(this.colorKey[K])) {
+										Q = this.colorKey[K]
+									} else {
+										var U = this.getKeys(this.colorSchemes[this.colorKey[K]]);
+										U.sort(function(k, d) {
+											return k - d
+										});
+										Q = this.colorSchemes[this.colorKey[K]].hasOwnProperty(8) ? this.colorSchemes[this.colorKey[K]][8] : this.colorSchemes[this.colorKey[K]][U[0]]
+									}
+								}
+							}
+							T[I][K].colorBrew = this.getColorBrew(Q, x[0], x[1], this.spectrumZeroValue, this.spectrumBreaks);
 							T[I][K].min = T[I][K].colorBrew.min;
 							T[I][K].max = T[I][K].colorBrew.max;
 							T[I][K].zero = T[I][K].colorBrew.zero;
@@ -47352,16 +48267,52 @@ CanvasXpress.prototype.initData = function(a) {
 							T[I][K].order = {};
 							for (var L = 0; L < T[I][K].levels.length; L++) {
 								T[I][K].order[T[I][K].levels[L]] = L;
-								var l = this.measureText(T[I][K].levels[L], x);
-								if (l > M) {
-									M = l;
+								var p = this.measureText(T[I][K].levels[L], y);
+								if (p > M) {
+									M = p;
 									S = T[I][K].levels[L].toString().length;
-									B = T[I][K].levels[L]
+									C = T[I][K].levels[L]
 								}
 								T[I][K].maxLevLen = M;
 								T[I][K].maxLevChr = S;
-								T[I][K].maxLevStr = B
+								T[I][K].maxLevStr = C
 							}
+							if (this.shapeKey && this.shapeKey[K]) {
+								if (this.isObject(this.shapeKey[K])) {
+									T[I][K].shapeBy = this.shapeKey[K];
+									for (var L = 0; L < A[I][K].length; L++) {
+										if (!T[I][K].shapeBy.hasOwnProperty(A[I][K][L].toString())) {
+											T[I][K].shapeBy[A[I][K][L].toString()] = this.shapes[L % this.shapes.length]
+										}
+									}
+									T[I][K].orderS = e(K, false, A[I][K])
+								}
+							}
+							T[I][K].shapes = this.shapes;
+							if (this.sizeKey && this.sizeKey[K]) {
+								if (this.isObject(this.sizeKey[K])) {
+									T[I][K].sizeBy = this.sizeKey[K];
+									for (var L = 0; L < A[I][K].length; L++) {
+										if (!T[I][K].sizeBy.hasOwnProperty(A[I][K][L].toString())) {
+											T[I][K].sizeBy[A[I][K][L].toString()] = this.sizes[L % this.sizes.length]
+										}
+									}
+									T[I][K].orderS = e(K, false, A[I][K])
+								}
+							}
+							T[I][K].sizes = this.sizes;
+							if (this.patternKey && this.patternKey[K]) {
+								if (this.isObject(this.patternKey[K])) {
+									T[I][K].patternBy = this.patternKey[K];
+									for (var L = 0; L < A[I][K].length; L++) {
+										if (!T[I][K].patternBy.hasOwnProperty(A[I][K][L].toString())) {
+											T[I][K].patternBy[A[I][K][L].toString()] = this.patterns[L % this.patterns.length]
+										}
+									}
+									T[I][K].orderS = e(K, false, A[I][K])
+								}
+							}
+							T[I][K].patterns = this.patterns
 						}
 						if (!T.m[I]) {
 							T.m[I] = {}
@@ -47370,162 +48321,162 @@ CanvasXpress.prototype.initData = function(a) {
 							if (J > T.m[I].maxFacLen) {
 								T.m[I].maxFacLen = J;
 								T.m[I].maxFacChr = P;
-								T.m[I].maxFacStr = y
+								T.m[I].maxFacStr = z
 							}
 						} else {
 							T.m[I].maxFacLen = J;
 							T.m[I].maxFacChr = P;
-							T.m[I].maxFacStr = y
+							T.m[I].maxFacStr = z
 						}
 					}
 				}
-				if (v) {
+				if (w) {
 					return
 				}
-				var A, g, G;
+				var B, l, G;
 				if (I == "z") {
-					A = "y";
-					g = "vars";
+					B = "y";
+					l = "vars";
 					G = "Var"
 				}
 				if (I == "x") {
-					A = "y";
-					g = "smps";
+					B = "y";
+					l = "smps";
 					G = "Smp"
 				}
 				if (I == "w") {
-					A = "w";
-					g = "smps";
+					B = "w";
+					l = "smps";
 					G = "Smp"
 				}
 				var M = 0;
 				var S = 0;
-				var B = "";
-				if (z[A]) {
-					for (var L = 0; L < z[A][g].length; L++) {
-						var E = z[A][g][L].length;
+				var C = "";
+				if (A[B]) {
+					for (var L = 0; L < A[B][l].length; L++) {
+						var E = A[B][l][L].length;
 						if (E >= S) {
-							var l = this.measureText(z[A][g][L], x);
-							if (l > M) {
-								M = l;
+							var p = this.measureText(A[B][l][L], y);
+							if (p > M) {
+								M = p;
 								S = E;
-								B = z[A][g][L]
+								C = A[B][l][L]
 							}
 						}
 					}
-					T[A]["max" + G + "Len"] = M;
-					T[A]["max" + G + "Chr"] = S;
-					T[A]["max" + G + "Str"] = B;
+					T[B]["max" + G + "Len"] = M;
+					T[B]["max" + G + "Chr"] = S;
+					T[B]["max" + G + "Str"] = C;
 					if (I == "x") {
-						if (!T[A]["range"]) {
-							T[A]["range"] = {}
+						if (!T[B]["range"]) {
+							T[B]["range"] = {}
 						}
-						for (var L = 0; L < z.y.smps.length; L++) {
-							var w = this.range(this.getDataForSmpAtPosition(L));
-							T[A]["range"][z.y.smps[L]] = {};
-							T[A]["range"][z.y.smps[L]].min = w[0];
-							T[A]["range"][z.y.smps[L]].max = w[1];
-							T[A]["range"][z.y.smps[L]].type = "Numeric"
+						for (var L = 0; L < A.y.smps.length; L++) {
+							var x = this.range(this.getDataForSmpAtPosition(L));
+							T[B]["range"][A.y.smps[L]] = {};
+							T[B]["range"][A.y.smps[L]].min = x[0];
+							T[B]["range"][A.y.smps[L]].max = x[1];
+							T[B]["range"][A.y.smps[L]].type = "Numeric"
 						}
 					}
 					if (I == "z") {
-						if (!T[A]["range"]) {
-							T[A]["range"] = {}
+						if (!T[B]["range"]) {
+							T[B]["range"] = {}
 						}
-						for (var L = 0; L < z.y.data.length; L++) {
-							var w = this.range(z.y.data[L]);
-							T[A]["range"][z.y.vars[L]] = {};
-							T[A]["range"][z.y.vars[L]].min = w[0];
-							T[A]["range"][z.y.vars[L]].max = w[1];
-							T[A]["range"][z.y.vars[L]].type = "Numeric"
+						for (var L = 0; L < A.y.data.length; L++) {
+							var x = this.range(A.y.data[L]);
+							T[B]["range"][A.y.vars[L]] = {};
+							T[B]["range"][A.y.vars[L]].min = x[0];
+							T[B]["range"][A.y.vars[L]].max = x[1];
+							T[B]["range"][A.y.vars[L]].type = "Numeric"
 						}
 					}
 					if (I == "w") {
-						if (!T[A]["range"]) {
-							T[A]["range"] = {}
+						if (!T[B]["range"]) {
+							T[B]["range"] = {}
 						}
 						var b = this.isGroupedData ? this.data.w : this.data.y;
 						var f = this.isGroupedData ? this.grpIndices : this.smpIndices;
 						for (var L = 0; L < f.length; L++) {
-							var w = this.range(this.getDataForSmpGrpAtIndex(L));
-							T[A]["range"][b.smps[L]] = {};
-							T[A]["range"][b.smps[L]].min = w[0];
-							T[A]["range"][b.smps[L]].max = w[1];
-							T[A]["range"][b.smps[L]].type = "Numeric"
+							var x = this.range(this.getDataForSmpGrpAtIndex(L));
+							T[B]["range"][b.smps[L]] = {};
+							T[B]["range"][b.smps[L]].min = x[0];
+							T[B]["range"][b.smps[L]].max = x[1];
+							T[B]["range"][b.smps[L]].type = "Numeric"
 						}
 					}
 				}
 			}
 		} else {
-			if (z.y[q]) {
-				T[q] = {};
+			if (A.y[u]) {
+				T[u] = {};
 				var M = 0;
 				var S = 0;
-				var B = "";
-				if (this.isNumeric2DArray(z.y[q])) {
-					for (var L = 0; L < z.y[q].length; L++) {
-						for (var K = 0; K < z.y[q][L].length; K++) {
-							if (z.y[q][L][K] != null) {
-								z.y[q][L][K] = Number(z.y[q][L][K])
+				var C = "";
+				if (this.isNumeric2DArray(A.y[u])) {
+					for (var L = 0; L < A.y[u].length; L++) {
+						for (var K = 0; K < A.y[u][L].length; K++) {
+							if (A.y[u][L][K] != null) {
+								A.y[u][L][K] = Number(A.y[u][L][K])
 							} else {
-								z.y[q][L][K] = null
+								A.y[u][L][K] = null
 							}
 						}
 					}
-					var w = this.setRangeDataObject(z.y[q]);
-					T[q].rmin = w[0];
-					T[q].rmax = w[1];
-					T[q].n = z.y[q].length * z.y[q][0].length;
-					T[q].type = "Numeric";
-					T[q].colorBrew = this.getColorBrew(this.colorSpectrum, w[0], w[1], this.colorSpectrumZeroValue, this.colorSpectrumBreaks);
-					T[q].min = T[q].colorBrew.min;
-					T[q].max = T[q].colorBrew.max;
-					T[q].zero = T[q].colorBrew.zero;
-					T[q].vals = T[q].colorBrew.vals;
-					T[q].incr = T[q].colorBrew.incr;
-					T[q].decs = T[q].colorBrew.decs;
-					T[q].levels = T[q].colorBrew.vals;
-					T[q].order = {};
-					for (var L = 0; L < T[q].levels.length; L++) {
-						T[q].order[T[q].levels[L]] = L;
-						var l = this.measureText(T[q].levels[L], x);
-						if (l > M) {
-							M = l;
-							S = T[q].levels[L].toString().length;
-							B = T[q].levels[L]
+					var x = this.setRangeDataObject(A.y[u]);
+					T[u].rmin = x[0];
+					T[u].rmax = x[1];
+					T[u].n = A.y[u].length * A.y[u][0].length;
+					T[u].type = "Numeric";
+					T[u].colorBrew = this.getColorBrew(this.colorSpectrum, x[0], x[1], this.colorSpectrumZeroValue, this.colorSpectrumBreaks);
+					T[u].min = T[u].colorBrew.min;
+					T[u].max = T[u].colorBrew.max;
+					T[u].zero = T[u].colorBrew.zero;
+					T[u].vals = T[u].colorBrew.vals;
+					T[u].incr = T[u].colorBrew.incr;
+					T[u].decs = T[u].colorBrew.decs;
+					T[u].levels = T[u].colorBrew.vals;
+					T[u].order = {};
+					for (var L = 0; L < T[u].levels.length; L++) {
+						T[u].order[T[u].levels[L]] = L;
+						var p = this.measureText(T[u].levels[L], y);
+						if (p > M) {
+							M = p;
+							S = T[u].levels[L].toString().length;
+							C = T[u].levels[L]
 						}
-						T[q].maxLevLen = M;
-						T[q].maxLevChr = S;
-						T[q].maxLevStr = B
+						T[u].maxLevLen = M;
+						T[u].maxLevChr = S;
+						T[u].maxLevStr = C
 					}
 				} else {
 					var D = {};
-					for (var L = 0; L < z.y[q].length; L++) {
-						for (var K = 0; K < z.y[q][L].length; K++) {
-							D[z.y[q][L][K]] = true
+					for (var L = 0; L < A.y[u].length; L++) {
+						for (var K = 0; K < A.y[u][L].length; K++) {
+							D[A.y[u][L][K]] = true
 						}
 					}
 					D = this.stringRangeSort(this.getKeys(D));
-					T[q].levels = D;
-					T[q].order = {};
+					T[u].levels = D;
+					T[u].order = {};
 					for (var L = 0; L < D.length; L++) {
-						T[q].order[D[L]] = L;
-						var l = this.measureText(D[L], x);
-						if (l > M) {
-							M = l;
+						T[u].order[D[L]] = L;
+						var p = this.measureText(D[L], y);
+						if (p > M) {
+							M = p;
 							S = D[L].length;
-							B = D[L]
+							C = D[L]
 						}
 					}
-					T[q].maxLevLen = M;
-					T[q].maxLevChr = S;
-					T[q].maxLevStr = B;
-					T[q].type = "String";
-					T[q].colors = [];
-					var p = 0;
+					T[u].maxLevLen = M;
+					T[u].maxLevChr = S;
+					T[u].maxLevStr = C;
+					T[u].type = "String";
+					T[u].colors = [];
+					var q = 0;
 					for (var L = 0; L < D.length; L++) {
-						T[q].colors.push(this.colors[p % this.colors.length]);
-						p++
+						T[u].colors.push(this.colors[q % this.colors.length]);
+						q++
 					}
 				}
 			} else {
@@ -48179,6 +49130,52 @@ CanvasXpress.prototype.initData = function(a) {
 			this.data.market = k
 		}
 		this.isMarketDataFormated = true
+	};
+	this.setSankeyData = function() {
+		if (this.sankeySource && this.sankeyTarget) {
+			this.data.sankey = {
+				nodes: [],
+				links: []
+			};
+			var k = {};
+			for (var d = 0; d < this.smpIndices.length; d++) {
+				var f = this.smpIndices[d];
+				var e = this.data.x[this.sankeySource][f];
+				var c = this.data.x[this.sankeyTarget][f];
+				var b = this.getDataAtPos(this.sankeyVarIndex, f, false, this.xAxisTransform, this.xAxisTransformFloorValue, this.xAxisTransformCeilValue);
+				this.data.sankey.links.push({
+					source: e,
+					target: c,
+					value: b,
+					id: f
+				});
+				k[e] = true;
+				k[c] = true
+			}
+			var l = 0;
+			for (var d in k) {
+				this.data.sankey.nodes.push({
+					name: d,
+					id: l++
+				})
+			}
+			var g = {};
+			this.data.sankey.nodes.forEach(function(m) {
+				g[m.name] = m
+			});
+			this.data.sankey.links = this.data.sankey.links.map(function(m) {
+				return {
+					source: g[m.source],
+					target: g[m.target],
+					value: m.value,
+					id: m.id
+				}
+			})
+		} else {
+			if (this.data.sankey) {
+				delete(this.data.sankey)
+			}
+		}
 	};
 	this.initializeData = function(b) {
 		this.data = a && !b ? a : b || this.dataSetExample;
@@ -52073,8 +53070,7 @@ CanvasXpress.prototype.initRemote = function() {
 		}
 	};
 	this.setClientIPInfo = function() {
-// Baohong
-		return;
+		return;		// Baohong
 		var setInfo = function(t) {
 			return function(r) {
 				t.meta.info = JSON.parse(r)
@@ -52149,6 +53145,7 @@ CanvasXpress.prototype.initRemote = function() {
 			config.calculateLayout = false
 		}
 		params.params = JSON.stringify(config);
+		params.afterRender = JSON.stringify(CanvasXpress.stack[this.target].afterRender);
 		params.cxdata = JSON.stringify(this.cloneObject(this.data));
 		this.ajaxRequest(this.remoteService, params, function() {
 			alert("CanvasXpress data saved " + type + " in the server")
@@ -52222,18 +53219,34 @@ CanvasXpress.prototype.initRemote = function() {
 							}
 						}
 					}
-					if (res.postprocess) {
-						for (var i = 0; i < res.postprocess.length; i++) {
-							var fn = res.postprocess[i].func;
-							var pr = res.postprocess[i].param;
+					if (res.afterRender) {
+						for (var i = 0; i < res.afterRender.length; i++) {
+							var ar = res.afterRender[i];
+							var fn = ar.shift();
 							if (fn) {
-								if (fn == "groupSamples" && n.isGroupedData) {
-									continue
+								var pr = ar.length > 0 ? ar.shift() : [];
+								var cn = ar.length > 0 ? ar.shift() : {};
+								n.flashInfoSpan(20, 20, fn);
+								for (var c in cn) {
+									n[c] = cn[c]
 								}
-								if (pr) {
-									n[fn].apply(n, pr)
-								} else {
-									n[fn]()
+								n[fn].apply(n, pr)
+							}
+						}
+					} else {
+						if (res.postprocess) {
+							for (var i = 0; i < res.postprocess.length; i++) {
+								var fn = res.postprocess[i].func;
+								var pr = res.postprocess[i].param;
+								if (fn) {
+									if (fn == "groupSamples" && n.isGroupedData) {
+										continue
+									}
+									if (pr) {
+										n[fn].apply(n, pr)
+									} else {
+										n[fn]()
+									}
 								}
 							}
 						}
@@ -52836,6 +53849,7 @@ CanvasXpress.prototype.initGraph = function() {
 			case "Treemap":
 			case "TagCloud":
 			case "ParallelCoordinates":
+			case "Sankey":
 			case "Pie":
 			case "Circular":
 				if (this.data.y) {
@@ -52918,7 +53932,7 @@ CanvasXpress.prototype.initGraph = function() {
 					if (this.graphType == "Video") {
 						d = c[c.length - 1]
 					} else {
-						if (this.graphType.match(/Scatter|Treemap|TagCloud/)) {
+						if (this.graphType.match(/Scatter|Treemap|TagCloud|Sankey/)) {
 							d = this.data.y.smps.length
 						} else {
 							if (this.graphType.match(/Venn/)) {
@@ -52967,34 +53981,76 @@ CanvasXpress.prototype.initGraph = function() {
 		}
 	};
 	this.reinitializeGraph = function() {
-		if (this.graphType == "Candlestick") {
-			this.isGraphTime = true;
-			if (!this.isMarketSwitched) {
-				this.switchToMarketData();
-				this.initAxes();
-				this.summaryType = "candle";
-				this.initializeDataAttributes();
-				this.isMarketSwitched = true
+		if (this.graphType == "Sankey") {
+			if ((!this.sankeySource || !this.sankeyTarget) && this.data.x) {
+				if (!this.sankeySource && this.data.x.hasOwnProperty("Source")) {
+					this.sankeySource = "Source"
+				}
+				if (!this.sankeyTarget && this.data.x.hasOwnProperty("Target")) {
+					this.sankeyTarget = "Target"
+				}
+				var b = this.meta.data.x;
+				var d = this.sortObject(this.data.x);
+				var a = [];
+				for (var c = 0; c < d.length; c++) {
+					if (b[d[c]].type == "String") {
+						a.push(d[c])
+					}
+				}
+				if (a.length > 0) {
+					if (!this.sankeySource) {
+						this.sankeySource = a.shift()
+					}
+					if (!this.sankeyTarget) {
+						if (a.length > 0) {
+							this.sankeyTarget = a.shift()
+						} else {
+							this.sankeyTarget = this.sankeySource
+						}
+					}
+				}
 			}
-			this.setMarketTechnicalData()
-		} else {
-			if (this.isExample && this.isMarketSwitched) {
-				this.switchFromMarketData();
-				this.isMarketSwitched = false;
-				this.summaryType = this.data.y.data ? "raw" : "mean";
-				this.initializeDataAttributes();
-				this.isGraphTime = false;
-				if (this.showVolume) {
-					this.layoutComb = false
+			if (this.sankeyVar) {
+				var c = this.getVariableIndeces(this.sankeyVar);
+				if (c >= 0) {
+					this.sankeyVarIndex = c
+				} else {
+					this.sankeyVarIndex = 0
 				}
 			} else {
-				if (this.graphType.match(/Scatter/) && this.scatterPlotMatrix && !this.isDOE) {
-					if (!this.data.l) {
-						this.setScatterPlotMatrix()
+				this.sankeyVarIndex = 0
+			}
+			this.setSankeyData()
+		} else {
+			if (this.graphType == "Candlestick") {
+				this.isGraphTime = true;
+				if (!this.isMarketSwitched) {
+					this.switchToMarketData();
+					this.initAxes();
+					this.summaryType = "candle";
+					this.initializeDataAttributes();
+					this.isMarketSwitched = true
+				}
+				this.setMarketTechnicalData()
+			} else {
+				if (this.isExample && this.isMarketSwitched) {
+					this.switchFromMarketData();
+					this.isMarketSwitched = false;
+					this.summaryType = this.data.y.data ? "raw" : "mean";
+					this.initializeDataAttributes();
+					this.isGraphTime = false;
+					if (this.showVolume) {
+						this.layoutComb = false
 					}
 				} else {
-					if (this.graphType.match(/Pie/) && this.xAxis.length > 1 && !this.isDOE) {
-						this.setMultiplePies()
+					if (this.graphType.match(/Scatter/) && this.scatterPlotMatrix && !this.isDOE) {
+						if (!this.data.l) {
+							this.setScatterPlotMatrix()
+						}
+					} else {
+						if (this.graphType.match(/Pie/) && this.xAxis.length > 1 && !this.isDOE) {
+							this.setMultiplePies()
+						}
 					}
 				}
 			}
@@ -53152,6 +54208,9 @@ CanvasXpress.prototype.initGraph = function() {
 					if (!this.isBoxPlotCalc && this.isGroupedData) {
 						this.groupSamples(this.getGroupingFactors(true), false, false, false, true)
 					}
+					this.oneDPlot();
+					break;
+				case "Sankey":
 					this.oneDPlot();
 					break;
 				case "Scatter2D":
@@ -53670,202 +54729,206 @@ CanvasXpress.prototype.initAxes = function(a) {
 		if (this.smpIndices && this.smpIndices.length < 1) {
 			return
 		}
-		if (this.graphType.match(/Correlation/)) {
-			var b = this.isGroupedData ? this.data.w : this.data.y;
-			this.setMin = null;
-			this.setMax = null;
-			if (this.correlationAnchorLegend) {
-				this.setAxisAttributes("xAxis")
-			}
-			if (!b.cor || b.cor.length == 0) {
-				this.summarize("cor");
-				this.setRangeData("cor")
-			}
-			if (!this.yAxisTitle) {
-				this.yAxisTitle = "Correlation"
-			}
+		if (this.graphType.match(/Venn|Network|Video|Sankey/)) {
+			return
 		} else {
-			if (this.graphType.match(/Scatter|Pie/)) {
-				var g = this.smpIndices;
-				var B = ["xAxis"];
-				var p = ["X"];
-				if (this.graphType.match(/Scatter/)) {
-					B.push("yAxis");
-					p.push("Y")
+			if (this.graphType.match(/Correlation/)) {
+				var b = this.isGroupedData ? this.data.w : this.data.y;
+				this.setMin = null;
+				this.setMax = null;
+				if (this.correlationAnchorLegend) {
+					this.setAxisAttributes("xAxis")
 				}
-				if (this.graphType.match(/ScatterBubble2D|Scatter3D/)) {
-					B.push("zAxis");
-					p.push("Z")
+				if (!b.cor || b.cor.length == 0) {
+					this.summarize("cor");
+					this.setRangeData("cor")
 				}
-				if (this.graphType == "Scatter3D") {
-					this.xAxisTicks = 10;
-					this.yAxisTicks = 10;
-					this.zAxisTicks = 10
-				}
-				for (var C = 0; C < B.length; C++) {
-					var I = B[C] + "Indices";
-					var y = "setMin" + p[C];
-					var A = "setMax" + p[C];
-					this.setMin = null;
-					this.setMax = null;
-					this.setAxis(B[C]);
-					this[I] = this.getSampleIndices(this[B[C]]);
-					if (this.scatterAxesEqual) {
-						this.setSamplesVisible(g)
-					} else {
-						this.setSamplesVisible(this[I])
-					}
-					if (this[y] != null) {
-						this.setMin = this[y]
-					}
-					if (this[A] != null) {
-						this.setMax = this[A]
-					}
-					this.setAxisAttributes(B[C], C > 0 ? d : false, false, this[B[C] + "Transform"]);
-					this.setSamplesVisible(g)
-				}
-				if (!this.scatterPlotMatrix) {
-					if (!this.xAxisTitle || this.xAxisTitleDynamic) {
-						this.xAxisTitleDynamic = true;
-						this.xAxisTitle = this.xAxis.length == 1 ? this.xAxis[0] : " "
-					}
-					if (this.graphType.match(/Scatter/)) {
-						if (!this.yAxisTitle || this.yAxisTitleDynamic) {
-							this.yAxisTitleDynamic = true;
-							this.yAxisTitle = this.yAxis.length == 1 ? this.yAxis[0] : " "
-						}
-						if (this.graphType.match(/ScatterBubble2D|Scatter3D/)) {
-							if (!this.zAxisTitle || this.zAxisTitleDynamic) {
-								this.zAxisTitleDynamic = true;
-								this.zAxisTitle = this.zAxis.length == 1 ? this.zAxis[0] : " "
-							}
-						}
-					}
+				if (!this.yAxisTitle) {
+					this.yAxisTitle = "Correlation"
 				}
 			} else {
-				if (this.graphType.match(/Genome/)) {
-					this.setMax = this.setMaxX != null ? this.setMaxX : null;
-					this.setMin = this.setMinX != null ? this.setMinX : null;
-					this.setRangeData("genome");
-					this.xAxisExact = true;
-					this.xAxisTransform = false;
-					this.xAxisAbsMin = this.minData;
-					this.xAxisAbsMax = this.maxData;
-					this.xAxisMin = this.minData - 1;
-					this.xAxisMax = this.maxData + 1;
-					this.xAxisDecs = 0;
-					this.xAxisRange = this.xAxisMax - this.xAxisMin;
-					this.xAxisTicks = this.genomeTicks;
-					this.xAxisIncr = this.xAxisRange / this.xAxisTicks;
-					this.setAxisValues("xAxis")
-				} else {
-					if (this.graphType == "ParallelCoordinates") {
-						this.parallelCoordinates = [];
-						var b = this.isGroupedData ? this.data.w : this.data.y;
-						var k = this.isGroupedData ? this.grpIndices : this.smpIndices;
-						for (var C = 0; C < k.length; C++) {
-							var r = k[C];
-							var t = this.measureText(b.smps[r], this.smpLabelFont);
-							var l = this.range(this.getDataForSmpGrpAtIndex(r));
-							var x = this[this.axisAlgorithm](l[0], l[1], this.xAxisTicks, this.axisWilkinsonLoose);
-							var s = [];
-							for (var z = 0; z < x.length; z++) {
-								if (x[z] >= l[0] && x[z] <= l[1]) {
-									s.push(x[z])
-								}
-							}
-							var c = this.getMaxText(s);
-							var D = this.measureText(c, this.axisTickFont);
-							var v = {
-								smp: b.smps[r],
-								lenSmp: t,
-								range: l,
-								min: l[0],
-								max: l[1],
-								vals: s,
-								maxText: c,
-								len: D
-							};
-							if (this.meta.data.modified && this.meta.data.modified.z && this.meta.data.modified.z[b.smps[r]]) {
-								var w = this.meta.data.modified.z[b.smps[r]];
-								var G = this.getMaxText(w);
-								var F = this.measureText(G, this.axisTickFont);
-								v.levs = w;
-								v.maxTextLev = G;
-								v.lenLev = F;
-								v.type = "String"
-							} else {
-								v.type = "Numeric"
-							}
-							this.parallelCoordinates.push(v)
-						}
-					} else {
-						var m = this.smpIndices;
-						var u = this.varIndices;
-						var n = this.grpIndices;
-						var f = this.varIndices;
-						var h = (this.graphType == "Dotplot" || this.graphType == "DotLine") && this.isGroupedData ? true : false;
-						var q = this.graphType.match(/Percent/) || (this.graphType.match(/Area/) && this.areaType.match(/percent/)) ? "percentile" : this.xAxisTransform;
-						var E = this.graphType.match(/Stacked/) || (this.graphType.match(/Area/) && this.areaType.match(/stacked/)) ? true : false;
-						var e = this.graphType == "Candlestick" ? "candle" : q ? q : false;
-						if (this.graphType.match(/BarLine|DotLine|AreaLine|StackedLine|StackedPercentLine/) && !this.data.a) {
-							this.data.a = {
-								xAxis: [],
-								xAxis2: []
-							};
-							this.xAxisVarIndices = [];
-							this.xAxis2VarIndices = [];
-							for (var C = 0; C < this.varIndices.length - 1; C++) {
-								this.data.a.xAxis.push(this.data.y.vars[this.varIndices[C]]);
-								this.xAxisVarIndices.push(this.varIndices[C])
-							}
-							this.data.a.xAxis2.push(this.data.y.vars[this.varIndices.length - 1]);
-							this.xAxis2VarIndices.push(this.varIndices[this.varIndices.length - 1])
-						}
-						if (this.varIndicesStart > -1 || this.smpIndicesStart > -1) {
-							if (this.graphType == "Heatmap") {
-								this.graphOrientation = "horizontal"
-							}
+				if (this.graphType.match(/Scatter|Pie/)) {
+					var g = this.smpIndices;
+					var B = ["xAxis"];
+					var p = ["X"];
+					if (this.graphType.match(/Scatter/)) {
+						B.push("yAxis");
+						p.push("Y")
+					}
+					if (this.graphType.match(/ScatterBubble2D|Scatter3D/)) {
+						B.push("zAxis");
+						p.push("Z")
+					}
+					if (this.graphType == "Scatter3D") {
+						this.xAxisTicks = 10;
+						this.yAxisTicks = 10;
+						this.zAxisTicks = 10
+					}
+					for (var C = 0; C < B.length; C++) {
+						var I = B[C] + "Indices";
+						var y = "setMin" + p[C];
+						var A = "setMax" + p[C];
+						this.setMin = null;
+						this.setMax = null;
+						this.setAxis(B[C]);
+						this[I] = this.getSampleIndices(this[B[C]]);
+						if (this.scatterAxesEqual) {
+							this.setSamplesVisible(g)
 						} else {
-							if (this.graphType == "StackedPercent" || this.graphType == "StackedPercentLine" || (this.graphType.match(/Area/) && this.areaType.match(/percent/))) {
-								this.setMinX = null;
-								this.setMaxX = null;
-								this.xAxisExact = true
-							} else {
-								if ((this.graphType == "Boxplot" && !this.isGroupedData && this.groupingFactors.length == 0) || this.summarizeBoxplot) {
-									this.summarize("iqr");
-									delete(this.summarizeBoxplot)
+							this.setSamplesVisible(this[I])
+						}
+						if (this[y] != null) {
+							this.setMin = this[y]
+						}
+						if (this[A] != null) {
+							this.setMax = this[A]
+						}
+						this.setAxisAttributes(B[C], C > 0 ? d : false, false, this[B[C] + "Transform"]);
+						this.setSamplesVisible(g)
+					}
+					if (!this.scatterPlotMatrix) {
+						if (!this.xAxisTitle || this.xAxisTitleDynamic) {
+							this.xAxisTitleDynamic = true;
+							this.xAxisTitle = this.xAxis.length == 1 ? this.xAxis[0] : " "
+						}
+						if (this.graphType.match(/Scatter/)) {
+							if (!this.yAxisTitle || this.yAxisTitleDynamic) {
+								this.yAxisTitleDynamic = true;
+								this.yAxisTitle = this.yAxis.length == 1 ? this.yAxis[0] : " "
+							}
+							if (this.graphType.match(/ScatterBubble2D|Scatter3D/)) {
+								if (!this.zAxisTitle || this.zAxisTitleDynamic) {
+									this.zAxisTitleDynamic = true;
+									this.zAxisTitle = this.zAxis.length == 1 ? this.zAxis[0] : " "
 								}
 							}
 						}
-						this.xAxis2Ticks = this.xAxisTicks;
-						if (this.graphType.match(/BarLine|DotLine|AreaLine|StackedLine|StackedPercentLine/) && this.data.a) {
-							this.setVariablesVisible(this.getVariablesVisibleByAxis("xAxis"))
-						}
+					}
+				} else {
+					if (this.graphType.match(/Genome/)) {
 						this.setMax = this.setMaxX != null ? this.setMaxX : null;
 						this.setMin = this.setMinX != null ? this.setMinX : null;
-						this.setAxisAttributes("xAxis", e, h, q, E, H);
-						this.xAxisTitle = this.xAxisTitle ? this.xAxisTitle : this.data.y.desc && this.data.y.desc[0] ? this.data.y.desc[0] : "";
-						if ((this.graphType.match(/BarLine|DotLine|AreaLine|StackedLine|StackedPercentLine/) && this.data.a) || (this.graphType == "Candlestick" && this.showVolume)) {
-							e = this.graphType == "Candlestick" ? "volume" : false;
-							if (this.graphType.match(/BarLine|DotLine|AreaLine|StackedLine|StackedPercentLine/)) {
-								this.setVariablesVisible(f);
-								this.setVariablesVisible(this.getVariablesVisibleByAxis("xAxis2"))
+						this.setRangeData("genome");
+						this.xAxisExact = true;
+						this.xAxisTransform = false;
+						this.xAxisAbsMin = this.minData;
+						this.xAxisAbsMax = this.maxData;
+						this.xAxisMin = this.minData - 1;
+						this.xAxisMax = this.maxData + 1;
+						this.xAxisDecs = 0;
+						this.xAxisRange = this.xAxisMax - this.xAxisMin;
+						this.xAxisTicks = this.genomeTicks;
+						this.xAxisIncr = this.xAxisRange / this.xAxisTicks;
+						this.setAxisValues("xAxis")
+					} else {
+						if (this.graphType == "ParallelCoordinates") {
+							this.parallelCoordinates = [];
+							var b = this.isGroupedData ? this.data.w : this.data.y;
+							var k = this.isGroupedData ? this.grpIndices : this.smpIndices;
+							for (var C = 0; C < k.length; C++) {
+								var r = k[C];
+								var t = this.measureText(b.smps[r], this.smpLabelFont);
+								var l = this.range(this.getDataForSmpGrpAtIndex(r));
+								var x = this[this.axisAlgorithm](l[0], l[1], this.xAxisTicks, this.axisWilkinsonLoose);
+								var s = [];
+								for (var z = 0; z < x.length; z++) {
+									if (x[z] >= l[0] && x[z] <= l[1]) {
+										s.push(x[z])
+									}
+								}
+								var c = this.getMaxText(s);
+								var D = this.measureText(c, this.axisTickFont);
+								var v = {
+									smp: b.smps[r],
+									lenSmp: t,
+									range: l,
+									min: l[0],
+									max: l[1],
+									vals: s,
+									maxText: c,
+									len: D
+								};
+								if (this.meta.data.modified && this.meta.data.modified.z && this.meta.data.modified.z[b.smps[r]]) {
+									var w = this.meta.data.modified.z[b.smps[r]];
+									var G = this.getMaxText(w);
+									var F = this.measureText(G, this.axisTickFont);
+									v.levs = w;
+									v.maxTextLev = G;
+									v.lenLev = F;
+									v.type = "String"
+								} else {
+									v.type = "Numeric"
+								}
+								this.parallelCoordinates.push(v)
 							}
-							this.setMax = this.setMaxX2 != null ? this.setMaxX2 : null;
-							this.setMin = this.setMinX2 != null ? this.setMinX2 : null;
-							this.setAxisAttributes("xAxis2", e, h, q, E);
-							this.xAxis2Title = this.xAxis2Title ? this.xAxis2Title : this.data.y.desc && this.data.y.desc[1] ? this.data.y.desc[1] : ""
+						} else {
+							var m = this.smpIndices;
+							var u = this.varIndices;
+							var n = this.grpIndices;
+							var f = this.varIndices;
+							var h = (this.graphType == "Dotplot" || this.graphType == "DotLine") && this.isGroupedData ? true : false;
+							var q = this.graphType.match(/Percent/) || (this.graphType.match(/Area/) && this.areaType.match(/percent/)) ? "percentile" : this.xAxisTransform;
+							var E = this.graphType.match(/Stacked/) || (this.graphType.match(/Area/) && this.areaType.match(/stacked/)) ? true : false;
+							var e = this.graphType == "Candlestick" ? "candle" : q ? q : false;
+							if (this.graphType.match(/BarLine|DotLine|AreaLine|StackedLine|StackedPercentLine/) && !this.data.a) {
+								this.data.a = {
+									xAxis: [],
+									xAxis2: []
+								};
+								this.xAxisVarIndices = [];
+								this.xAxis2VarIndices = [];
+								for (var C = 0; C < this.varIndices.length - 1; C++) {
+									this.data.a.xAxis.push(this.data.y.vars[this.varIndices[C]]);
+									this.xAxisVarIndices.push(this.varIndices[C])
+								}
+								this.data.a.xAxis2.push(this.data.y.vars[this.varIndices.length - 1]);
+								this.xAxis2VarIndices.push(this.varIndices[this.varIndices.length - 1])
+							}
+							if (this.varIndicesStart > -1 || this.smpIndicesStart > -1) {
+								if (this.graphType == "Heatmap") {
+									this.graphOrientation = "horizontal"
+								}
+							} else {
+								if (this.graphType == "StackedPercent" || this.graphType == "StackedPercentLine" || (this.graphType.match(/Area/) && this.areaType.match(/percent/))) {
+									this.setMinX = null;
+									this.setMaxX = null;
+									this.xAxisExact = true
+								} else {
+									if ((this.graphType == "Boxplot" && !this.isGroupedData && this.groupingFactors.length == 0) || this.summarizeBoxplot) {
+										this.summarize("iqr");
+										delete(this.summarizeBoxplot)
+									}
+								}
+							}
+							this.xAxis2Ticks = this.xAxisTicks;
+							if (this.graphType.match(/BarLine|DotLine|AreaLine|StackedLine|StackedPercentLine/) && this.data.a) {
+								this.setVariablesVisible(this.getVariablesVisibleByAxis("xAxis"))
+							}
+							this.setMax = this.setMaxX != null ? this.setMaxX : null;
+							this.setMin = this.setMinX != null ? this.setMinX : null;
+							this.setAxisAttributes("xAxis", e, h, q, E, H);
+							this.xAxisTitle = this.xAxisTitle ? this.xAxisTitle : this.data.y.desc && this.data.y.desc[0] ? this.data.y.desc[0] : "";
+							if ((this.graphType.match(/BarLine|DotLine|AreaLine|StackedLine|StackedPercentLine/) && this.data.a) || (this.graphType == "Candlestick" && this.showVolume)) {
+								e = this.graphType == "Candlestick" ? "volume" : false;
+								if (this.graphType.match(/BarLine|DotLine|AreaLine|StackedLine|StackedPercentLine/)) {
+									this.setVariablesVisible(f);
+									this.setVariablesVisible(this.getVariablesVisibleByAxis("xAxis2"))
+								}
+								this.setMax = this.setMaxX2 != null ? this.setMaxX2 : null;
+								this.setMin = this.setMinX2 != null ? this.setMinX2 : null;
+								this.setAxisAttributes("xAxis2", e, h, q, E);
+								this.xAxis2Title = this.xAxis2Title ? this.xAxis2Title : this.data.y.desc && this.data.y.desc[1] ? this.data.y.desc[1] : ""
+							}
+							this.setMax = this.setMaxR != null ? this.setMaxR : this.setMax;
+							this.setMin = this.setMinR != null ? this.setMinR : this.setMin;
+							if (this.graphType == "Circular" && this.rAxis) {
+								this.setAxisAttributes("rAxis", "circular", h, q, false, true)
+							}
+							this.setVariablesVisible(f);
+							this.smpIndices = m;
+							this.varIndices = u;
+							this.grpIndices = n
 						}
-						this.setMax = this.setMaxR != null ? this.setMaxR : this.setMax;
-						this.setMin = this.setMinR != null ? this.setMinR : this.setMin;
-						if (this.graphType == "Circular" && this.rAxis) {
-							this.setAxisAttributes("rAxis", "circular", h, q, false, true)
-						}
-						this.setVariablesVisible(f);
-						this.smpIndices = m;
-						this.varIndices = u;
-						this.grpIndices = n
 					}
 				}
 			}
@@ -54811,11 +55874,11 @@ CanvasXpress.prototype.Scatter2D = function(a) {
 						var Z = d !== false ? this.getDataAtPos(B, d, false, this.zAxisTransform, this.zAxisTransformFloorValue, this.zAxisTransformCeilValue) : false;
 						var ah = this.getDataAtPos(B, ac, "stdev");
 						var O = this.getDataAtPos(B, I, "stdev");
-						var n = this.colorBy ? this.getPropertyValue(B, ac, "colorBy") : this.colors[at % this.colors.length];
+						var n = this.colorBy ? this.getPropertyValue(B, null, "colorBy") : this.colors[at % this.colors.length];
 						var ae = n;
-						var S = this.shapeBy ? this.getPropertyValue(B, ac, "shapeBy") : this.shapes[0];
-						var h = this.sizeBy ? parseInt(this.getPropertyValue(B, ac, "sizeBy")) : d !== false ? this.sizes[Math.floor(this.percentile(ag, v, Z) / 10) + 1] : this.scatterPointSize;
-						var f = this.patternBy ? this.getPropertyValue(B, ac, "patternBy") : "closed";
+						var S = this.shapeBy ? this.getPropertyValue(B, null, "shapeBy") : this.shapes[0];
+						var h = this.sizeBy ? parseInt(this.getPropertyValue(B, null, "sizeBy")) : d !== false ? this.sizes[Math.floor(this.percentile(ag, v, Z) / 10) + 1] : this.scatterPointSize;
+						var f = this.patternBy ? this.getPropertyValue(B, null, "patternBy") : "closed";
 						var p = this.scatterType && this.scatterType.match(/image/i) ? this.images[ar] : false;
 						var W = p ? "image" : S;
 						var an = this.isVisibleSelectedDataPoint(B, F);
@@ -56392,7 +57455,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 	this.setRowColBlocks = function() {
 		this.setVariableBlock();
 		var d = this.isGroupedData ? this.grpIndices.length : this.smpIndices.length;
-		var f = ["Area", "AreaLine", "Heatmap", "Line", "ParallelCoordinates", "Stacked", "StackedLine", "StackedPercent", "StackedPercentLine"];
+		var f = ["Area", "AreaLine", "Heatmap", "Line", "ParallelCoordinates", "Sankey", "Stacked", "StackedLine", "StackedPercent", "StackedPercentLine"];
 		var e = 0;
 		var g = 0;
 		if (this.isInArray(this.graphType, f)) {
@@ -56626,14 +57689,14 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 		}
 	};
 	this.getSampleTitleHeight = function() {
-		if (this.smpTitle && this.graphType != "Treemap" && this.graphType != "TagCloud") {
+		if (this.smpTitle && this.graphType != "Treemap" && this.graphType != "TagCloud" && this.graphType != "Sankey") {
 			return this.smpTitleFontSize + this.margin
 		} else {
 			return 0
 		}
 	};
 	this.getSampleLabelLength = function() {
-		if (this.showSampleNames && this.graphType != "Treemap" && this.graphType != "TagCloud") {
+		if (this.showSampleNames && this.graphType != "Treemap" && this.graphType != "TagCloud" && this.graphType != "Sankey") {
 			if (this.smpLabelRotate && Math.abs(this.smpLabelRotate) == 90) {
 				return this.smpLabelFontSize + this.margin
 			} else {
@@ -56660,7 +57723,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 		}
 	};
 	this.getSampleLabelDescLength = function() {
-		if (this.showSampleNames && this.smpLabelDescription && this.graphType != "Treemap" && this.graphType != "TagCloud") {
+		if (this.showSampleNames && this.smpLabelDescription && this.graphType != "Treemap" && this.graphType != "TagCloud" && this.graphType != "Sankey") {
 			var b = this.meta.data.x[this.smpLabelDescription];
 			if (b.maxLevChr > this.maxSmpStringLen) {
 				return this.measureText(b.maxLevStr.substring(0, this.maxSmpStringLen), this.smpLabelFont)
@@ -56672,7 +57735,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 		}
 	};
 	this.getAxisTitleTickLength = function(m) {
-		if (this.graphType == "Treemap" || this.graphType == "TagCloud") {
+		if (this.graphType == "Treemap" || this.graphType == "TagCloud" || this.graphType == "Sankey") {
 			return 0
 		} else {
 			if (this.graphOrientation == "vertical") {
@@ -56784,7 +57847,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 		if (this.graphType == "Heatmap" && !this.isMultidimensionalData && !(this.colorBy || this.shapeBy || this.sizeBy || this.patternBy)) {
 			return this.legendOverlaysHeight
 		} else {
-			if (this.isMultidimensionalData || ((this.colorBy || this.shapeBy || this.sizeBy || this.patternBy) && this.graphType.match(/^Bar$|Boxplot|Dotplot|Treemap|Heatmap|Stacked|ParallelCoordinates|Line/))) {
+			if (this.isMultidimensionalData || ((this.colorBy || this.shapeBy || this.sizeBy || this.patternBy) && this.graphType.match(/^Bar$|Boxplot|Dotplot|Treemap|Heatmap|Stacked|ParallelCoordinates|Line|Sankey/))) {
 				return this.legendPosition == "right" ? this.legendWidth + this.legendOverlaysWidth : this.legendHeight + this.legendOverlaysHeight
 			} else {
 				if (this.graphType == "Treemap") {
@@ -56799,7 +57862,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 		if (this.graphType == "Heatmap" && !this.isMultidimensionalData && !(this.colorBy || this.shapeBy || this.sizeBy || this.patternBy)) {
 			return this.legendOverlaysWidth
 		} else {
-			if (this.isMultidimensionalData || ((this.colorBy || this.shapeBy || this.sizeBy || this.patternBy) && this.graphType.match(/^Bar$|Boxplot|Dotplot|Treemap|Heatmap|Stacked|ParallelCoordinates|Line/))) {
+			if (this.isMultidimensionalData || ((this.colorBy || this.shapeBy || this.sizeBy || this.patternBy) && this.graphType.match(/^Bar$|Boxplot|Dotplot|Treemap|Heatmap|Stacked|ParallelCoordinates|Line|Sankey/))) {
 				return this.legendPosition == "right" ? this.legendWidth + this.legendOverlaysWidth : this.legendHeight + this.legendOverlaysHeight
 			} else {
 				if (this.graphType == "Treemap") {
@@ -57456,19 +58519,23 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 		}
 	};
 	this.set1DXAxis = function() {
-		if (this.graphType == "ParallelCoordinates") {
-			var d = this.graphOrientation == "vertical" ? this.y - 0.5 : this.x - 0.5;
-			var f = this.isGroupedData ? this.grpIndices : this.smpIndices;
-			for (var c = 0; c < f.length; c++) {
-				var b = this.parallelCoordinates[c];
-				b.units = d / (b.max - b.min)
-			}
+		if (this.graphType == "Sankey") {
+			return
 		} else {
-			var d = this.graphOrientation == "vertical" ? "y" : "x";
-			var e = ["BarLine", "DotLine", "AreaLine", "StackedLine", "StackedPercentLine"];
-			this.setAxisUnits("xAxis", d);
-			if ((this.isInArray(this.graphType, e) && this.data.a) || (this.graphType == "Candlestick" && this.showVolume)) {
-				this.setAxisUnits("xAxis2", d)
+			if (this.graphType == "ParallelCoordinates") {
+				var d = this.graphOrientation == "vertical" ? this.y - 0.5 : this.x - 0.5;
+				var f = this.isGroupedData ? this.grpIndices : this.smpIndices;
+				for (var c = 0; c < f.length; c++) {
+					var b = this.parallelCoordinates[c];
+					b.units = d / (b.max - b.min)
+				}
+			} else {
+				var d = this.graphOrientation == "vertical" ? "y" : "x";
+				var e = ["BarLine", "DotLine", "AreaLine", "StackedLine", "StackedPercentLine"];
+				this.setAxisUnits("xAxis", d);
+				if ((this.isInArray(this.graphType, e) && this.data.a) || (this.graphType == "Candlestick" && this.showVolume)) {
+					this.setAxisUnits("xAxis2", d)
+				}
 			}
 		}
 	};
@@ -57479,7 +58546,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 		var C = this.smpHairline == "dotted" ? "dottedLine" : "line";
 		var r = this.marginLeft + this.offsetX + this.left;
 		var p = this.marginTop + this.offsetY + this.top;
-		if (this.graphType == "Treemap" || this.graphType == "TagCloud") {
+		if (this.graphType == "Treemap" || this.graphType == "TagCloud" || this.graphType == "Sankey") {
 			return
 		}
 		this.disableGradientTransparencyShadow();
@@ -57679,7 +58746,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 		this.enableGradientTransparencyShadow()
 	};
 	this.drawTrees = function() {
-		if (this.graphType == "Treemap" || this.graphType == "TagCloud") {
+		if (this.graphType == "Treemap" || this.graphType == "TagCloud" || this.graphType == "Sankey") {
 			return
 		} else {
 			if (!this.isGroupedData) {
@@ -57715,7 +58782,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 		var g = J == "varDendrogram" ? this.varIndices : this.smpIndices;
 		var E, b, D, al, aj, K, P;
 		var ab = this.dendrogramSpace / 2;
-		if (this.graphType == "TagCloud") {
+		if (this.graphType == "TagCloud" || this.graphType == "Sankey") {
 			return
 		}
 		this.disableGradientTransparencyShadow();
@@ -58116,7 +59183,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 		var u = this.marginTop + this.offsetY + this.top;
 		this.smpInfo = [];
 		this.varInfo = [];
-		if (this.graphType == "Treemap" || this.graphType == "TagCloud") {
+		if (this.graphType == "Treemap" || this.graphType == "TagCloud" || this.graphType == "Sankey") {
 			return
 		}
 		if (this.smpTitle) {
@@ -58757,7 +59824,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 				return j.colors[j.order[i]]
 			}
 		};
-		if (this.graphType == "Treemap" || this.graphType == "TagCloud") {
+		if (this.graphType == "Treemap" || this.graphType == "TagCloud" || this.graphType == "Sankey") {
 			return
 		}
 		if ((this.graphType == "BarLine" || this.graphType == "DotLine") && this.xAxis2Title) {
@@ -59130,7 +60197,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 				}
 			}
 		};
-		if (this.graphType == "Treemap" || this.graphType == "TagCloud" || this.graphType == "ParallelCoordinates") {
+		if (this.graphType == "Treemap" || this.graphType == "TagCloud" || this.graphType == "ParallelCoordinates" || this.graphType == "Sankey") {
 			return
 		}
 		if (!this.layoutValid) {
@@ -59387,6 +60454,9 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 				break;
 			case "TagCloud":
 				this.draw1DTagCloudDataPoints();
+				break;
+			case "Sankey":
+				this.draw1DSankeyDataPoints();
 				break
 		}
 		this.resetClipArea();
@@ -59763,6 +60833,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 					var G = [];
 					var I = [];
 					var L = this.isTransformedData || (this.showBoxplotOriginalData && this.data.y.trans) ? this.data.y.trans : this.data.y.data;
+					this.isGroupedData = false;
 					for (var U = 0; U < this.data.w.grps[Q[V]].length; U++) {
 						P = this.getPropertyValue(H[W], this.data.w.grps[Q[V]][U], "colorBy");
 						C.push(L[H[W]][this.data.w.grps[Q[V]][U]]);
@@ -59773,6 +60844,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 						I.push([H[W], Q[V], this.data.w.grps[Q[V]][U]]);
 						Y++
 					}
+					this.isGroupedData = true;
 					if (this.data.w.hasOwnProperty("stdev")) {
 						aa.push([this.getDataAtPos(H[W], Q[V], false, this.xAxisTransform, this.get1DMinFloorValue(), this.get1DMaxCeilValue()), this.getDataAtPos(H[W], Q[V], "stdev", this.xAxisTransform, this.get1DMinFloorValue(), this.get1DMaxCeilValue())])
 					}
@@ -59886,7 +60958,7 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 						var M = this.getPropertyValue(this.varIndices[U], P[T], "patternByData");
 						this.addArea(this.drawShape(I, E, C, G, G, Y, N, M, false, false, true), [this.varIndices[U], P[T]]);
 						if (this.showDataValues) {
-							this.drawText(H, (E + (this.colBlockSize / 2)) - 2, (C + (this.rowBlockSize / 2)) - 2, this.overlayFont, this.foreground, "right", "bottom")
+							this.drawText(this.correctPrecisionBug(H), (E + (this.colBlockSize / 2)) - 2, (C + (this.rowBlockSize / 2)) - 2, this.overlayFont, this.foreground, "right", "bottom")
 						}
 					}
 				}
@@ -60049,9 +61121,51 @@ CanvasXpress.prototype.oneDPlot = function(a) {
 			}
 		}
 	};
+	this.draw1DSankeyDataPoints = function() {
+		this.setSankey();
+		var b = this.marginLeft + this.offsetX + this.left;
+		var n = this.marginTop + this.offsetY + this.top;
+		var p = this.data.sankey;
+		var k = p.links[0].target.x - p.links[0].source.x;
+		for (var h = 0; h < p.nodes.length; h++) {
+			var f = p.nodes[h];
+			f.plotX = f.x + b;
+			f.plotY = f.y + n;
+			f.color = this.colors[h % this.colors.length];
+			f.tooltip = ["Sankey:" + f.name]
+		}
+		for (var h = 0; h < p.links.length; h++) {
+			var m = p.links[h];
+			var o = (m.dy / 2);
+			m.plotX = [];
+			m.plotY = [];
+			m.tooltip = [this.sankeyVarIndex, m.id];
+			for (var e = 0; e < 4; e++) {
+				m.plotX.push(m.bezier[0][e] + b);
+				m.plotY.push(m.bezier[1][e] + n - o)
+			}
+			if (this.colorBy) {
+				m.color = this.addColorTransparency(this.getPropertyValue(this.sankeyVarIndex, m.id, "colorBy"), 0.75)
+			} else {
+				if (this.sankeyCoordinateColor) {
+					var g = this.addColorTransparency(m.source.color, 0.75);
+					var c = this.addColorTransparency(m.target.color, 0.75);
+					m.color = this.getLinearGradient(0, 0, k, 0, g, c);
+					m.colors = [g, c]
+				} else {
+					m.color = this.sankeyColor
+				}
+			}
+		}
+		this.drawSankey(p)
+	};
 	this.checkOrientation = function() {
 		if (this.graphType == "Heatmap") {
 			this.graphOrientation = "horizontal"
+		} else {
+			if (this.graphType == "Sankey") {
+				this.graphOrientation = "vertical"
+			}
 		}
 	};
 	this.checkClustering = function() {
@@ -66345,6 +67459,13 @@ CanvasXpress.doc = {
 			D: "Properties used to acknowledge the use of canvasXpress :",
 			P: ["acknowledgment"]
 		},
+		"Sankey Diagrams": {
+			D: "General parameters in sankey diagrams",
+			P: ["sankeyColor", "sankeyCoordinateColor", "sankeyIterations", "sankeyNodeWidth", "sankeySource", "sankeyTarget", "sankeyVar", "sankeyVarIndex"],
+			U: {
+				Sankey: "true"
+			}
+		},
 		Clustering: {
 			D: "Parameters used in clustering",
 			P: ["clusterAxis", "distance", "imputeMethod", "kmeansSmpClusters", "kmeansVarClusters", "linkage", "maxIterations", "samplesClustered", "samplesKmeaned", "variablesClustered", "variablesKmeaned"],
@@ -66367,6 +67488,7 @@ CanvasXpress.doc = {
 				Line: "true",
 				Heatmap: "true",
 				AreaLine: "true",
+				Sankey: "true",
 				Stacked: "true"
 			}
 		},
@@ -66399,6 +67521,7 @@ CanvasXpress.doc = {
 				ParallelCoordinates: "true",
 				Area: "true",
 				Line: "true",
+				Sankey: "true",
 				AreaLine: "true",
 				Heatmap: "true",
 				Stacked: "true"
@@ -66541,6 +67664,7 @@ CanvasXpress.doc = {
 				Line: "true",
 				Heatmap: "true",
 				AreaLine: "true",
+				Sankey: "true",
 				Stacked: "true"
 			}
 		},
@@ -66606,6 +67730,7 @@ CanvasXpress.doc = {
 				ParallelCoordinates: "true",
 				Area: "true",
 				Line: "true",
+				Sankey: "true",
 				AreaLine: "true",
 				Heatmap: "true",
 				Stacked: "true"
@@ -66693,6 +67818,7 @@ CanvasXpress.doc = {
 				Line: "true",
 				Heatmap: "true",
 				AreaLine: "true",
+				Sankey: "true",
 				Stacked: "true"
 			}
 		},
@@ -66721,12 +67847,13 @@ CanvasXpress.doc = {
 				Line: "true",
 				Heatmap: "true",
 				AreaLine: "true",
+				Sankey: "true",
 				Stacked: "true"
 			}
 		},
 		"Data Point Attributes": {
 			D: "General attributes for data points in scatter and one dimensional plots",
-			P: ["colorBy", "colorByShowLegend", "connectBy", "connectByColor", "connectByData", "ellipseBy", "metadataColorProperties", "motionBy", "motionControlHeight", "motionTrails", "outlineBy", "outlineByData", "outlineByShowLegend", "patternBy", "patternByData", "patternByShowLegend", "shapeBy", "shapeByData", "shapeByShape", "shapeByShowLegend", "sizeBy", "sizeByContinuous", "sizeByData", "sizeByShowLegend", "treemapBy"],
+			P: ["colorBy", "colorByShowLegend", "colorKey", "connectBy", "connectByColor", "connectByData", "ellipseBy", "metadataColorProperties", "motionBy", "motionControlHeight", "motionTrails", "outlineBy", "outlineByData", "outlineByShowLegend", "patternBy", "patternByData", "patternByShowLegend", "patternKey", "shapeBy", "shapeByData", "shapeByShape", "shapeByShowLegend", "shapeKey", "sizeBy", "sizeByContinuous", "sizeByData", "sizeByShowLegend", "sizeKey", "treemapBy"],
 			U: {
 				Boxplot: "true",
 				DotLine: "true",
@@ -66736,6 +67863,7 @@ CanvasXpress.doc = {
 				ParallelCoordinates: "true",
 				Scatter2D: "true",
 				Dotplot: "true",
+				Sankey: "true",
 				Heatmap: "true"
 			}
 		},
@@ -66769,6 +67897,7 @@ CanvasXpress.doc = {
 				Line: "true",
 				Heatmap: "true",
 				AreaLine: "true",
+				Sankey: "true",
 				Stacked: "true"
 			}
 		},
@@ -66823,6 +67952,7 @@ CanvasXpress.doc = {
 				Line: "true",
 				Heatmap: "true",
 				AreaLine: "true",
+				Sankey: "true",
 				Stacked: "true"
 			}
 		},
@@ -66897,7 +68027,7 @@ CanvasXpress.doc = {
 		},
 		Legends: {
 			D: "Legends for variables and samples",
-			P: ["legendBackgroundColor", "legendBox", "legendBoxColor", "legendColor", "legendColumns", "legendFontSize", "legendFontStyle", "legendInside", "legendPosition", "legendScaleFontFactor", "showLegend"],
+			P: ["legendBackgroundColor", "legendBox", "legendBoxColor", "legendColor", "legendColumns", "legendFontSize", "legendFontStyle", "legendInside", "legendOrder", "legendPosition", "legendScaleFontFactor", "showLegend"],
 			U: {
 				StackedPercent: "true",
 				Bar: "true",
@@ -66920,6 +68050,7 @@ CanvasXpress.doc = {
 				Line: "true",
 				Heatmap: "true",
 				AreaLine: "true",
+				Sankey: "true",
 				Stacked: "true"
 			}
 		},
@@ -66997,6 +68128,7 @@ CanvasXpress.doc = {
 				Line: "true",
 				Heatmap: "true",
 				AreaLine: "true",
+				Sankey: "true",
 				Stacked: "true"
 			}
 		},
@@ -67029,6 +68161,7 @@ CanvasXpress.doc = {
 				Line: "true",
 				Heatmap: "true",
 				AreaLine: "true",
+				Sankey: "true",
 				Stacked: "true"
 			}
 		}
@@ -67231,6 +68364,15 @@ CanvasXpress.doc = {
 			T: "boolean",
 			C: "Configuration property to cluster variables",
 			D: "false"
+		},
+		sankeySource: {
+			H: ['{"data":"Sankey","graphType":"Sankey"}'],
+			O: ["false"],
+			M: "Sankey Diagrams",
+			T: "option",
+			C: "Name of a sample annotation to use as source in the sankey diagrams",
+			D: "false",
+			X: "getXData"
 		},
 		backgroundWindow: {
 			S: ["backgroundType"],
@@ -67984,6 +69126,7 @@ CanvasXpress.doc = {
 				ParallelCoordinates: "true",
 				Area: "true",
 				Line: "true",
+				Sankey: "true",
 				AreaLine: "true",
 				Heatmap: "true",
 				Stacked: "true"
@@ -68051,6 +69194,13 @@ CanvasXpress.doc = {
 			C: "Color for the degenerate A/C/G and valines in the genome browser",
 			D: "rgb(0,103,0)"
 		},
+		sankeyCoordinateColor: {
+			H: ['{"data":"Sankey","graphType":"Sankey"}'],
+			M: "Sankey Diagrams",
+			T: "boolean",
+			C: "Flag to use same color for the nodes and for the  lines (links) in the Sankey diagram.",
+			D: "false"
+		},
 		marginTop: {
 			H: ["{*}"],
 			M: "Margins",
@@ -68091,6 +69241,13 @@ CanvasXpress.doc = {
 			T: "color",
 			C: "Color for the degenerate A/G/T and aspartic acids in the genome browser",
 			D: "rgb(0,0,0)"
+		},
+		sankeyColor: {
+			H: ['{"data":"Sankey","graphType":"Sankey"}'],
+			M: "Sankey Diagrams",
+			T: "color",
+			C: "The default color for the sankey lines (links)",
+			D: "rgba(200,200,200,0.5)"
 		},
 		videoLoop: {
 			H: ['{*,"backgroundType":"video","backgroundVideo":["http://video-js.zencoder.com/oceans-clip.mp4","http://video-js.zencoder.com/oceans-clip.webm"]}'],
@@ -68167,6 +69324,12 @@ CanvasXpress.doc = {
 			T: "array",
 			C: "Array for the remote data pased after a service call"
 		},
+		shapeKey: {
+			M: "Data Point Attributes",
+			T: "object",
+			C: "Object to assign custom shapes to sample annotations and variable annotations included in the data object. The key of the object is the name of an annotation in the data.x object or the name of an annotation in the data.z object. A default shape will be assigned to a data point whose value was not included the object.",
+			D: "{}"
+		},
 		contourZBinSize: {
 			H: ['{"data":"Random:50:50","functions":["createContour"],"contourXBinSize":5,"contourYBinSize":5,"contourZBinSize":5}', '{"data":"Random:50:50","functions":["createContour"],"contourXBinSize":10,"contourYBinSize":10,"contourZBinSize":10}'],
 			S: ["createContour"],
@@ -68188,6 +69351,13 @@ CanvasXpress.doc = {
 			T: "color",
 			C: "Color for the video grid and current time",
 			D: "rgb(255,0,0)"
+		},
+		sankeyIterations: {
+			H: ['{"data":"Sankey","graphType":"Sankey"}'],
+			M: "Sankey Diagrams",
+			T: "integer",
+			C: "Number of iterations for the Sankey diagram",
+			D: "32"
 		},
 		sizes: {
 			H: ['{"data":"Random:16:3:16:0","graphType":"Scatter3D","sizeBy":"Annt1"}'],
@@ -68682,6 +69852,12 @@ CanvasXpress.doc = {
 			C: "Flag to force exact values for the data in the Z axis",
 			D: "false"
 		},
+		colorKey: {
+			M: "Data Point Attributes",
+			T: "object",
+			C: "Object to assign custom colors to sample annotations and variable annotations included in the data object. The key of the object is the name of an annotation in the data.x object, or the name of an annotation in the data.z object. The value for each key could be either: (1) a scalar with a valid color scheme (see this.colorSchemes), or (2) an array with valid colors, or (3) an object to specify custom colors for each of the values of the annotation. A default color will be assigned to a data point whose value was not included the object. CanvasXpress will handle string and numeric annotation approprietly. However, if an object is specified like that one in number (3) the annotation will be treated as categorical even if the annotation is numeric.",
+			D: "false"
+		},
 		createContour: {
 			S: ["contourXBinSize", "contourYBinSize", "contourZBinSize", "contourType"],
 			M: "Functions",
@@ -68927,6 +70103,13 @@ CanvasXpress.doc = {
 			C: "Type of error bars.",
 			D: "confidenceInterval95"
 		},
+		sankeyNodeWidth: {
+			H: ['{"data":"Sankey","graphType":"Sankey"}'],
+			M: "Sankey Diagrams",
+			T: "integer",
+			C: "Width for the Sankey nodes",
+			D: "12"
+		},
 		randomDataMean: {
 			M: "Random",
 			T: "integer",
@@ -69166,6 +70349,13 @@ CanvasXpress.doc = {
 			C: "Width for the treemap border",
 			D: "3"
 		},
+		sankeyVarIndex: {
+			Z: "true",
+			M: "Sankey Diagrams",
+			T: "integer",
+			C: "Variable index to use in the sankey diagrams",
+			D: "0"
+		},
 		fontSize: {
 			H: ['{*,"title":"Graph Title"}'],
 			M: "Text",
@@ -69249,7 +70439,7 @@ CanvasXpress.doc = {
 		},
 		graphType: {
 			H: ['{*,"graphOrientation":"vertical"}'],
-			O: ["Bar", "Line", "Area", "AreaLine", "BarLine", "Boxplot", "Dotplot", "DotLine", "Heatmap", "Candlestick", "Stacked", "StackedLine", "StackedPercent", "StackedPercentLine", "Treemap", "TagCloud", "ParallelCoordinates", "Scatter2D", "ScatterBubble2D", "Scatter3D", "Correlation", "Pie", "Venn", "Network", "Genome", "Circular"],
+			O: ["Bar", "Line", "Area", "AreaLine", "BarLine", "Boxplot", "Dotplot", "DotLine", "Heatmap", "Candlestick", "Stacked", "StackedLine", "StackedPercent", "StackedPercentLine", "Treemap", "TagCloud", "ParallelCoordinates", "Sankey", "Scatter2D", "ScatterBubble2D", "Scatter3D", "Correlation", "Pie", "Venn", "Network", "Genome", "Circular"],
 			M: "General",
 			T: "option",
 			C: "Specifies the type of graph.",
@@ -71040,6 +72230,11 @@ CanvasXpress.doc = {
 				Scatter3D: "true"
 			}
 		},
+		legendOrder: {
+			M: "Legends",
+			T: "object",
+			C: "Object to specify custom order for the levels in the legends. The key of the object is the name of an annotation in the data.x object, or the name of an annotation in the data.z object. The value for each key is an array with the levels for the corresponding factor  @defaul false"
+		},
 		showHistogramDensity: {
 			H: ['{*,"data":"Random:200:2","functions":["createHistogram"],"histogramBins":50}'],
 			S: ["createHistogram", "histogramDensityKernel"],
@@ -71282,19 +72477,19 @@ CanvasXpress.doc = {
 			C: "Specifies the second color of the gradient if the background type is of the type of 'windowGradient'.",
 			D: "rgb(0,0,36)"
 		},
-		showLevelOverlays: {
-			H: ['{*,"graphType":"Heatmap","data":"Random:10:10:3:3","varOverlays":["Annt1","Annt2","Annt3"],"smpOverlays":["Factor1","Factor2","Factor3"]}'],
-			M: "Overlays",
-			T: "boolean",
-			C: "Flag to indicate to show or not the level overlays in one dimensional plots",
-			D: "true"
-		},
 		startPieSectors: {
 			H: ['{"startPieSectors":0}', '{"startPieSectors":90}', '{"startPieSectors":180}', '{"startPieSectors":270}'],
 			M: "Pie Charts",
 			T: "float",
 			C: "Starting degrees for pie sectors. 0 is equivalent to 3:00 oclock",
 			D: "0"
+		},
+		showLevelOverlays: {
+			H: ['{*,"graphType":"Heatmap","data":"Random:10:10:3:3","varOverlays":["Annt1","Annt2","Annt3"],"smpOverlays":["Factor1","Factor2","Factor3"]}'],
+			M: "Overlays",
+			T: "boolean",
+			C: "Flag to indicate to show or not the level overlays in one dimensional plots",
+			D: "true"
 		},
 		sizeByShowLegend: {
 			H: ["{*}"],
@@ -71364,6 +72559,12 @@ CanvasXpress.doc = {
 			T: "color",
 			C: "Default color for the fill of the tracks in the genome browser",
 			D: "rgb(255,255,255)"
+		},
+		patternKey: {
+			M: "Data Point Attributes",
+			T: "object",
+			C: "Object to assign custom patterns to sample annotations and variable annotations included in the data object. The key of the object is the name of an annotation in the data.x object or the name of an annotation in the data.z object. A default pattern will be assigned to a data point whose value was not included the object.",
+			D: "{}"
 		},
 		scaleTextConstantMult: {
 			Z: "true",
@@ -71595,6 +72796,12 @@ CanvasXpress.doc = {
 			T: "integer",
 			C: "Number of states to keep in the network stack after a drag or move",
 			D: "8"
+		},
+		sizeKey: {
+			M: "Data Point Attributes",
+			T: "object",
+			C: "Object to assign custom sizes to sample annotations and variable annotations included in the data object. The key of the object is the name of an annotation in the data.x object  or the name of an annotation in the data.z object. A default size will be assigned to a data point whose value was not included the object.",
+			D: "{}"
 		},
 		sequenceEColor: {
 			H: ["{*}"],
@@ -72264,6 +73471,12 @@ CanvasXpress.doc = {
 			C: "Default size in pixels of the coordinates height",
 			D: "12"
 		},
+		showPieSampleLabel: {
+			M: "Pie Charts",
+			T: "boolean",
+			C: 'A flag to show the sample label when plotting multiple pies  @exs {*,"data":"Generic","xAxis":["Sample1", "Sample2", "Sample3", "Sample4", "Sample5", "Sample6"],"layout":"2X3"}',
+			D: "true"
+		},
 		backgroundImage: {
 			S: ["backgroundType"],
 			H: ['{"backgroundType":"image","backgroundImage":"http://www.canvasxpress.org/images/nanotube.jpg"}', '{"backgroundType":"windowImage","backgroundImage":"http://www.canvasxpress.org/images/nanotube.jpg"}'],
@@ -72271,12 +73484,6 @@ CanvasXpress.doc = {
 			T: "url",
 			C: "Specifies the url for the background image when the background type is of the type 'image' or 'windowImage'.",
 			D: "false"
-		},
-		showPieSampleLabel: {
-			M: "Pie Charts",
-			T: "boolean",
-			C: 'A flag to show the sample label when plotting multiple pies  @exs {*,"data":"Generic","xAxis":["Sample1", "Sample2", "Sample3", "Sample4", "Sample5", "Sample6"],"layout":"2X3"}',
-			D: "true"
 		},
 		minTextSize: {
 			H: ['{*,"title":"Graph Title"}'],
@@ -72697,7 +73904,7 @@ CanvasXpress.doc = {
 		legendPosition: {
 			S: ["legendInside"],
 			H: ["{*}"],
-			O: ["rightTop", "right", "rightBottom", "bottom", "leftBottom", "left", "leftTop", "top"],
+			O: ["topRight", "right", "bottomRight", "bottom", "bottomLeft", "left", "topLeft", "top"],
 			M: "Legends",
 			T: "option",
 			C: "Position for the legend in the graphs. If legendInside is true the all the options apply but if legendInside is false only right and bottom are valid options",
@@ -73018,6 +74225,13 @@ CanvasXpress.doc = {
 			M: "X-Axis",
 			T: "float",
 			C: "Minimum non-filtered value for the data plotted in the X axis"
+		},
+		sankeyVar: {
+			H: ['{"data":"Sankey","graphType":"Sankey"}'],
+			M: "Sankey Diagrams",
+			T: "string",
+			C: "Variable name to use in the sankey diagrams",
+			D: "false"
 		},
 		filterSkipNullKeys: {
 			M: "Data Filters",
@@ -73458,6 +74672,15 @@ CanvasXpress.doc = {
 			T: "integer",
 			C: "Size for the sample labels in one dimensional plots. Be aware that auto scaling font must be turned off for this property to take effect. A more convenient way to modify the size is to use the sample label scaling factor",
 			D: "12"
+		},
+		sankeyTarget: {
+			H: ['{"data":"Sankey","graphType":"Sankey"}'],
+			O: ["false"],
+			M: "Sankey Diagrams",
+			T: "option",
+			C: "Name of a sample annotation to use as target in the sankey diagrams",
+			D: "false",
+			X: "getXData"
 		},
 		sequenceAColor: {
 			H: ["{*}"],
