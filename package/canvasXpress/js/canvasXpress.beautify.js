@@ -17550,7 +17550,7 @@ CanvasXpress.prototype.initLegendUtils = function() {
 				b = Math.max(b, this.margin + a + this.margin);
 				this.legendDecorationHeight += (h.kaplanMeier.length * f * 2) - this.margin
 			}
-			this.legendDecorationWidth = b
+			this.legendDecorationWidth = b+5 // Baohong
 		}
 	};
 	this.setOncoprintLegendDimension = function() {
