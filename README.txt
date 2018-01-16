@@ -16,3 +16,4 @@ tail -n+2 Genotyping_updated_10202017.txt >> Genotyping.new.txt
  
 ./make_gex_drug.pl Expression_drug.new.txt
 
+zip -r Lupus_eQTL.zip *.html *.pl package
