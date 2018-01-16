@@ -92,7 +92,6 @@ Search: <input type="text" id="txtSearch" value="">
 </td>
 <td><b>Click on any column in a row will plot gene expression across conditions.</b></td>
 <td><a href=index.html>Interferon eQTL</a></td>
-<td><a href=Tcell.html>T cell eQTL</a></td>
 </tr>
 </table>
 
@@ -218,20 +217,20 @@ data.forEach(function(d, i) {
 
 
 // setting up grid
-var column_keys = d3.keys(data[0]).filter(function(i) { return i != "comstr" });
+var column_keys = d3.keys(data[0]).filter(function(i) { return i != "comstr" && i != "id" && !i.startsWith("US") });
 var columns = column_keys.map(function(key, i) {
-	return {
-		id: key,
-		name: key,
-		field: key,
-		sortable: true
-	}
+    if (key != "Description") {
+        return { id: key, name: key, field: key, sortable: true }
+    } else {
+        return { id: key, name: key, field: key, sortable: true, width: 240 }
+    }
 });
 
 // SlickGrid
 var options = {
-	enableCellNavigation: true,
-	multiColumnSort: false
+    enableCellNavigation: true,
+    forceFitColumns: true,  
+    multiColumnSort: false
 };
 
 var afterRenderObject1 = [];
@@ -300,18 +299,17 @@ grid.onClick.subscribe(function(e, args) {
 	var SNPs = {};
 	var Alleles;
 	var headers, strData, charData, binData, pakoData, vals;
-	var SNP_Illumina_ID = grid.getDataItem(args.row)["SNP_Illumina_ID"]
-	var SNP_rsID = grid.getDataItem(args.row)["SNP_rsID"]
+	var SNP = grid.getDataItem(args.row)["SNP"]
 
 	if (grid.getDataItem(args.row)["Gene_name"].length > 1) {
 		gene = grid.getDataItem(args.row)["Gene_name"];
-		Alleles = SNP_alleles[SNP_allelesIndex[SNP_Illumina_ID]];
+		Alleles = SNP_alleles[SNP_allelesIndex[SNP]];
 	}
 
 
 	headers = snpheader.split("\\t");
 	// Decode base64 (convert ascii to binary)
-	strData  = atob(Genotyping[GenotypingIndex[SNP_Illumina_ID]]["snpheader"]);
+	strData  = atob(Genotyping[GenotypingIndex[SNP]]["snpheader"]);
 
 	// Convert binary string to character-number array
 	charData    = strData.split('').map(function(x){return x.charCodeAt(0);});
@@ -398,7 +396,7 @@ grid.onClick.subscribe(function(e, args) {
 		tobeSorted.push(dataRow);
 	}
 
-	var sorted = helper.arr.multisort(tobeSorted, ['SNP','Drug'], ['ASC','DESC']);
+	var sorted = helper.arr.multisort(tobeSorted, ['SNP','drug'], ['ASC','ASC']);
 
 	for (var i=0; i < sorted.length; i++) {
 		if (sorted[i]["SNP"].length == 1) {
@@ -471,7 +469,7 @@ grid.onClick.subscribe(function(e, args) {
         '          "printType": "window",' +
         '          "layoutBoxLabelColors" : ["lightgrey", "lightgrey", "lightgrey", "lightgrey"],' +
 		'			"title": "Gene expression of ' + grid.getDataItem(args.row)["Gene_name"] + '",' +
-		'			"smpTitle": "' + SNP_rsID + '",' +
+		'			"smpTitle": "' + SNP + '",' +
 		'		   "showBoxplotOriginalData": true' +
 		'		  }';
 
@@ -490,10 +488,10 @@ grid.onClick.subscribe(function(e, args) {
 //	afterRenderObject = renderObject.reverse();
 
 	if (afterRenderObject.length < 1) {
-		afterRenderObject.push(["updateDataFilter",[true],{"toDoFilter":{"sample":{"Drug":{"exact":["Exposed","Unexposed"]},"SNP":{"exact":Alleles_value}}}}]);
+		afterRenderObject.push(["updateDataFilter",[true],{"toDoFilter":{"sample":{"drug":{"exact":["Exposed","Unexposed"]},"SNP":{"exact":Alleles_value}}}}]);
 		afterRenderObject.push(["changeAttribute",["colorBy","SNP"]]);
-		afterRenderObject.push(["groupSamples",[["Drug","SNP"]]]);
-		afterRenderObject.push(["sortSamplesByCategory",[["Drug"]],{"sortDir":"descending"}]);
+		afterRenderObject.push(["groupSamples",[["drug","SNP"]]]);
+		afterRenderObject.push(["sortSamplesByCategory",[["drug"]],{"sortDir":"ascending"}]);
 		afterRenderObject.push(["toggleAttribute", [ "boxplotConnect" ] ]);
 		afterRenderObject.push(["setDimensions",[410,372]]);
 
@@ -523,10 +521,11 @@ grid.onClick.subscribe(function(e, args) {
 //	afterRenderObject1 = renderObject.reverse();
 
 	if (afterRenderObject1.length < 1) {
-		afterRenderObject1.push(["changeAttribute",["colorBy","Drug"]]);
-		afterRenderObject1.push(["groupSamples",[["SNP","Drug"]]]);
-		afterRenderObject1.push(["updateDataFilter",[true],{"toDoFilter":{"sample":{"Drug":{"exact":["Exposed","Unexposed"]},"SNP":{"exact":Alleles_value}}}}]);
+		afterRenderObject1.push(["changeAttribute",["colorBy","drug"]]);
+		afterRenderObject1.push(["groupSamples",[["SNP","drug"]]]);
+		afterRenderObject1.push(["updateDataFilter",[true],{"toDoFilter":{"sample":{"drug":{"exact":["Exposed","Unexposed"]},"SNP":{"exact":Alleles_value}}}}]);
 		afterRenderObject1.push(["setDimensions",[410,372]]);
+
 	}
 
 
@@ -803,7 +802,7 @@ jQuery(document).ready(function() {
 });
 </script>
 <br>
-<b>Note:</b>"NA"s in the table indicate that the Gene-SNP pair did not pass the threshold of at least 2 individuals with minor allele in each group and therefore wasn't tested for an interaction or the particular environmental factor of interest (drug, IFN, or Tcell).
+<b>Note:</b>"NA"s in the table indicate that the Gene-SNP pair did not pass the threshold of at least 2 individuals with minor allele in each group and therefore wasn't tested for an interaction or the particular environmental factor of interest (drug or IFN). P-value for each SNP-gene pair that we tested for an interaction is provided so people can explore all the pairs tested not just those that passed our threshold of 0.01.
 <br><br>
 Please use Chrome or Firefox for browsering. It is fully functional under Chrome v57.0.2987.98, Firefox v52.0, and Safari v9.1.2. You can also download the <a href=https://github.com/baohongz/Lupus_eQTL/blob/gh-pages/Lupus_eQTL.zip>Lupus_eQTL.zip</a> file to your local PC, unzip it and start exploring by opening index.html in Chrome or Firefox even without WIFI.
 

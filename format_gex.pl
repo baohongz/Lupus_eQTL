@@ -17,14 +17,14 @@ my ($fh, $sample_annotation, $dataset, $comstr);
 my $comheader = "";
 my %geneDesc = {};
 my %geneName = {};
-my $VALSTART = 5;
+my $VALSTART = 4;
 
 if (defined $ARGV[0] && $ARGV[0] eq "help") {
 	print "Usage: $0 <expression file>\n";
 	exit;
 }
 
-open (FILE, "zcat /ngs-pubdata/data/annotation/gene/Ensembl_v75_hg19_Gencode.v19_human.txt.gz|") || die $@;
+open (FILE, "zcat /data1/annotation/gene/Ensembl_v75_hg19_Gencode.v19_human.txt.gz|") || die $@;
 while ($line = <FILE>) {
 	@items = split(/\t/, $line);
 	$geneDesc{$items[3]} = $items[7];
@@ -48,14 +48,14 @@ while ($line = <FILE>) {
 	$line =~ s/^\s+//g;
 	@items = split(/\t/, $line);
 
-	$gene = $items[0];
+	$gene = $items[1];
 	$gene =~ s/\.\d+$//g;
 
 	print "$gene\t$geneName{$gene}\t$geneDesc{$gene}";
-	for ($i=2;$i<$VALSTART; $i++) {
+	for ($i=3;$i<$VALSTART+1; $i++) {
 		print "\t$items[$i]";
 	}
-	for ($i=$VALSTART; $i<@items; $i++) {
+	for ($i=$VALSTART+1; $i<@items; $i++) {
 		if ($items[$i] =~ m/NA/i) {
 			$value = $items[$i];
 		} else {
