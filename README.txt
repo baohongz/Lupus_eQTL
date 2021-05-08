@@ -1,3 +1,5 @@
+Result Viewer: https://baohongz.github.io/Lupus_eQTL/
+
 ./format_gex.pl Expression_drug_updated_10202017.txt > Expression_drug.new.txt
 ./format_gex.pl Expression_IFN_updated_10202017.txt > Expression_IFN.new.txt
  
